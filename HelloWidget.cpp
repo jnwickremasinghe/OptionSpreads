@@ -44,7 +44,7 @@ IMPLEMENT_APP(MyApp)
 bool MyApp::OnInit()
 {
     MyFrame1 *frame = new MyFrame1(NULL,-1, wxT("Hello World"),
-         wxPoint(50,50), wxSize(450,340) );
+         wxPoint(50,50), wxSize(1700,1340) );
     frame->Show(TRUE);
     SetTopWindow(frame);
     return TRUE;
