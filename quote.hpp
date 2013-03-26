@@ -8,6 +8,7 @@
 #ifndef QUOTE_HPP_
 #define QUOTE_HPP_
 
+#include <boost/thread.hpp>
 #include <string>
 #include <curl/curl.h>
 
@@ -40,4 +41,25 @@ private:
 
 
 };
+
+class newquote	{
+public:
+	newquote();
+	void run();
+	void set_newquote_params(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string server);
+	~newquote();
+	void start(int N);
+
+private:
+	std::string new2_cons_key;
+	std::string new2_cons_secret;
+	std::string new2_token_key;
+	std::string new2_token_secret;
+	std::string new2_url_base;
+	std::string new2_symbol;
+	std::string new2_server;
+    boost::thread m_Thread;
+
+};
+
 #endif /* QUOTE_HPP_ */

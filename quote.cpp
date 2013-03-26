@@ -12,6 +12,205 @@ using namespace std;
 
 static std::string buffer;
 
+#include <boost/asio.hpp>
+#include <boost/asio/ssl.hpp>
+#include <boost/bind.hpp>
+#include <iostream>
+#include <istream>
+#include <ostream>
+#include <string>
+#include <boost/asio.hpp>
+#include <boost/asio/ssl.hpp>
+#include <boost/bind.hpp>
+#include <iostream>
+#include <istream>
+#include <ostream>
+#include <string>
+//#include "boost_example.hpp"
+
+
+class client
+{
+public:
+  client(boost::asio::io_service& io_service, boost::asio::ssl::context& context, boost::asio::ip::tcp::resolver::iterator endpoint_iterator)
+    : socket_(io_service, context)
+  {
+    socket_.set_verify_mode(boost::asio::ssl::context::verify_peer);
+    socket_.set_verify_callback(boost::bind(&client::verify_certificate, this, _1, _2));
+
+    boost::asio::async_connect(socket_.lowest_layer(), endpoint_iterator, boost::bind(&client::handle_connect, this, boost::asio::placeholders::error));
+  }
+
+  bool verify_certificate(bool preverified, boost::asio::ssl::verify_context& ctx)
+  {
+    char subject_name[256];
+    X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
+    X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
+    std::cout << "Verifying:\n" << subject_name << std::endl;
+
+    return true;
+  }
+
+  void handle_connect(const boost::system::error_code& error)
+  {
+    if(!error){
+      std::cout << "Connection OK!" << std::endl;
+      socket_.async_handshake(boost::asio::ssl::stream_base::client, boost::bind(&client::handle_handshake, this, boost::asio::placeholders::error));
+    }else{
+      std::cout << "Connect failed: " << error.message() << std::endl;
+    }
+  }
+
+
+private:
+  boost::asio::ssl::stream<boost::asio::ip::tcp::socket> socket_;
+  char reply_[0x1<<16];
+  std::string new_url_base;
+  std::string new_cons_key;
+  std::string new_cons_secret;
+  std::string new_token_key;
+  std::string new_token_secret;
+  std::string new_server;
+
+public:
+
+  void handle_handshake(const boost::system::error_code& error)
+  {
+    if(!error){
+      std::cout << "Sending request: " << std::endl;
+
+      std::stringstream request_;
+
+      request_ << "GET " << new_url_base << " HTTP/1.1\r\n";
+      request_ << "Host: " << new_server << "\r\n";
+      request_ << "Accept-Encoding: *\r\n";
+      request_ << "\r\n";
+
+      std::cout << request_.str() << std::endl;
+
+      boost::asio::async_write(socket_, boost::asio::buffer(request_.str()), boost::bind(&client::handle_write, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
+    }else{
+      std::cout << "Handshake failed: " << error.message() << std::endl;
+    }
+  }
+
+  void handle_write(const boost::system::error_code& error, size_t bytes_transferred)
+  {
+    if (!error){
+      std::cout << "Sending request OK!" << std::endl;
+      boost::asio::async_read(socket_, boost::asio::buffer(reply_, bytes_transferred), boost::bind(&client::handle_read, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
+    }else{
+      std::cout << "Write failed: " << error.message() << std::endl;
+    }
+  }
+
+  void handle_read(const boost::system::error_code& error, size_t bytes_transferred)
+  {
+    if (!error){
+      std::cout << "Reply: ";
+      std::cout <<"No error!" << endl;
+      //std::cout << reply_ << endl;
+      std::cout.write(reply_, bytes_transferred);
+      std::cout << "\n";
+
+    }else{
+      std::cout << "Read failed: " << error.message() << std::endl;
+    }
+  }
+
+
+void set_new_params(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string server) {
+		new_cons_key=c_key;
+		new_cons_secret=c_secret;
+		new_token_key=t_key;
+		new_token_secret=t_secret;
+		new_url_base=uri;
+		new_server=server;
+	}
+
+
+
+};
+
+newquote::newquote()	{
+
+}
+
+void newquote::set_newquote_params(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string server)	{
+
+	new2_cons_key=c_key;
+	new2_cons_secret=c_secret;
+	new2_token_key=t_key;
+	new2_token_secret=t_secret;
+	new2_url_base=uri;
+	new2_server=server;
+};
+
+void newquote::start(int N)
+{
+    m_Thread = boost::thread(&newquote::run, this);
+}
+
+void newquote::run() {
+
+
+	    	try{
+	    			boost::asio::io_service io_service;
+
+	    			boost::asio::ip::tcp::resolver resolver(io_service);
+	    			boost::asio::ip::tcp::resolver::query query(new2_server, "443");
+	    			boost::asio::ip::tcp::resolver::iterator iterator = resolver.resolve(query);
+	    			boost::asio::ssl::context context(boost::asio::ssl::context::sslv23);
+	    			context.add_verify_path("/home/joseph/workspace2/BoostExamples/certs");
+
+	    		//    context.load_verify_file("/home/mint/workspace/BoostExamples/certs/verisign.pem");
+
+	    			client c(io_service, context, iterator);
+
+	    			c.set_new_params( new2_cons_key, new2_cons_secret, new2_token_key, new2_token_secret,new2_url_base.substr(25,std::string::npos), new2_server);
+	    			//boost::asio::io_service::work work(io_service);
+	    			io_service.run();
+	    		    boost::posix_time::seconds workTime(3);
+	    		}
+	    		catch (std::exception& e){
+	    			std::cerr << "Exception: " << e.what() << "\n";
+	    		}
+
+
+	  };
+
+
+newquote::~newquote()	{
+	std::cout <<"We outta here" << endl;
+}
+
+
+int main2(int argc, char* argv[])
+{
+  try{
+    boost::asio::io_service io_service;
+
+    boost::asio::ip::tcp::resolver resolver(io_service);
+    boost::asio::ip::tcp::resolver::query query("google.com", "443");
+    boost::asio::ip::tcp::resolver::iterator iterator = resolver.resolve(query);
+    boost::asio::ssl::context context(boost::asio::ssl::context::sslv23);
+    context.add_verify_path("/home/joseph/workspace2/BoostExamples/certs");
+
+//    context.load_verify_file("/home/mint/workspace/BoostExamples/certs/verisign.pem");
+    client c(io_service, context, iterator);
+    io_service.run();
+
+
+  }catch (std::exception& e){
+    std::cerr << "Exception: " << e.what() << "\n";
+  }
+
+  std::cin.get();
+  return 0;
+}
+
+
+
 quote::quote(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri)	{
 
 	cons_key=c_key;
@@ -80,6 +279,9 @@ float quote::last(std::string symbol) {
 
 
 
+//(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string server) {
+
+
 	if (curl)
 	{
 		curl_easy_setopt(curl, CURLOPT_URL, url_string.c_str());
@@ -114,7 +316,7 @@ float quote::last(std::string symbol) {
 	else
 		return -1;
 
-
-
-
 }
+
+
+

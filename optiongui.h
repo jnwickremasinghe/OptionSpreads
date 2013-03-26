@@ -2,6 +2,7 @@
 
 #include <wx/wx.h>
 #include <wx/image.h>
+
 // begin wxGlade: ::dependencies
 #include <wx/grid.h>
 // end wxGlade
@@ -22,7 +23,7 @@
 #ifndef OPTION_H
 #define OPTION_H
 
-
+#include "quote.hpp"
 
 
 // begin wxGlade: ::extracode
@@ -36,7 +37,7 @@ public:
 
     MyFrame1(wxWindow* parent, int id, const wxString& title, const wxPoint& pos=wxDefaultPosition, const wxSize& size=wxDefaultSize, long style=wxDEFAULT_FRAME_STYLE);
     void OnQuit(wxCommandEvent & event);
-
+    newquote ticker2;
 private:
     // begin wxGlade: MyFrame1::methods
     void set_properties();
@@ -65,6 +66,7 @@ protected:
     wxTextCtrl* txtctrlTokenSecret;
     wxTextCtrl* txtctrlURI;
     wxGrid* grid_1;
+
     // end wxGlade
 }; // wxGlade: end class
 
