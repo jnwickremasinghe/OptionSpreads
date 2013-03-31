@@ -4,7 +4,7 @@
 #include <oauth.h>
 #include <sstream>
 #include "tinyxml2.h"
-#include "quote.hpp"
+#include "ticker.hpp"
 
 
 using namespace tinyxml2;
@@ -12,7 +12,7 @@ using namespace std;
 
 static std::string buffer;
 
-quote::quote(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri)	{
+ticker::ticker(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri)	{
 
 	cons_key=c_key;
 	cons_secret=c_secret;
@@ -27,18 +27,18 @@ quote::quote(std::string c_key, std::string c_secret, std::string t_key, std::st
 	  curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
 	  curl_easy_setopt(curl, CURLOPT_HEADER, 0);
 	  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
-	  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &quote::writer);
+	  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &ticker::writer);
 	  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
 	}
 }
 
-quote::~quote()	{
+ticker::~ticker()	{
 	  // Always cleanup
 	  curl_easy_cleanup(curl);
 }
 
 // This is the writer call back function used by curl
-int quote::writer(char *data, size_t size, size_t nmemb,
+int ticker::writer(char *data, size_t size, size_t nmemb,
                   std::string *buffer)
 {
   // What we will return
@@ -58,13 +58,13 @@ int quote::writer(char *data, size_t size, size_t nmemb,
 }
 
 
-void quote::start(void)	{
+void ticker::start(void)	{
 
 
 
 }
 
-float quote::last(std::string symbol) {
+float ticker::last(std::string symbol) {
 
 	char *req_url = NULL;
 	float last;

@@ -11,11 +11,11 @@
 #include <string>
 #include <curl/curl.h>
 
-class quote {
+class ticker {
 
 public:
-	quote(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri);
-	~quote(void);
+	ticker(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri);
+	~ticker(void);
 	float last(std::string);
 	void start(void);
 	void stop(void);
