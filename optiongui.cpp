@@ -142,6 +142,8 @@ void MyFrame1::get_quote(wxCommandEvent& WXUNUSED(event))
 {
 
 	std::string URLBase = "https://api.tradeking.com/v1/market/ext/quotes.xml?symbols=";
+	//URLBase="https://stream.tradeking.com/v1/market/quotes.xml?symbols=";
+
 
 	//get Consumer Key as ASCII const char*
 	wxString ctrl_value=txtctrlConsumerKey->GetValue();
@@ -172,7 +174,9 @@ void MyFrame1::get_quote(wxCommandEvent& WXUNUSED(event))
 	float last_float;
 
 	//create quote object with oauth credentials & pass in symbol & URI
-	ticker mytick = ticker(ConsumerKey, ConsumerSecret, TokenKey, TokenSecret, URLBase);
+	ticker mytick;
+	mytick.start(ConsumerKey, ConsumerSecret, TokenKey, TokenSecret, URLBase, symbol);
+	boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
 
 	last_float=mytick.last(symbol);
 

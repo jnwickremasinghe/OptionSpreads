@@ -9,15 +9,17 @@
 #define QUOTE_HPP_
 
 #include <string>
+#include <boost/thread.hpp>
 #include <curl/curl.h>
 
 class ticker {
 
 public:
-	ticker(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri);
+//	void init(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri);
+	void start(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string symbol_list);
 	~ticker(void);
 	float last(std::string);
-	void start(void);
+
 	void stop(void);
 
 	// Our curl objects
@@ -31,13 +33,13 @@ private:
 	std::string token_key;
 	std::string token_secret;
 	std::string url_base;
-	std::string symbol;
+	std::string symbols;
+
 	char errorBuffer[256];
 	// Write all expected data in here
-
+    boost::thread m_Thread;
 	static int writer(char *data, size_t size, size_t nmemb,
             std::string *buffer);
-
 
 };
 #endif /* QUOTE_HPP_ */
