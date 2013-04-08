@@ -142,7 +142,7 @@ void MyFrame1::get_quote(wxCommandEvent& WXUNUSED(event))
 {
 
 	std::string URLBase = "https://api.tradeking.com/v1/market/ext/quotes.xml?symbols=";
-	//URLBase="https://stream.tradeking.com/v1/market/quotes.xml?symbols=";
+	URLBase="https://stream.tradeking.com/v1/market/quotes.xml?symbols=";
 
 
 	//get Consumer Key as ASCII const char*

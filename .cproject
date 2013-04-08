@@ -36,7 +36,7 @@
 <tool command="g++  -lssl -loauth" commandLinePattern="${COMMAND} ${OUTPUT_FLAG}${OUTPUT_PREFIX}${OUTPUT} ${INPUTS} ${FLAGS}" id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1368917478" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug">
 <option id="gnu.cpp.link.option.flags.1180945137" name="Linker flags" superClass="gnu.cpp.link.option.flags" value="`wx-config --libs`  `curl-config --libs`" valueType="string"/>
 <option id="gnu.cpp.link.option.libs.498918835" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
-<listOptionValue builtIn="false" value="boost_system-mt"/>
+<listOptionValue builtIn="false" value="boost_thread-mt"/>
 </option>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1299878931" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 <additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>

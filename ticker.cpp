@@ -99,15 +99,19 @@ int ticker::writer(char *data, size_t size, size_t nmemb,
 	parse_success=xmlreply.Parse(buffer->c_str());
 	if (parse_success==tinyxml2::XML_NO_ERROR)	{
 		XMLElement* xmllast;
-		XMLNode *xmlfirstnode;
-		xmlfirstnode=xmlreply.FirstChild();
-		xmlfirstnode=xmlfirstnode->FirstChild();
-		xmllast=xmlreply.FirstChildElement("response")->FirstChildElement("quotes")->FirstChildElement("quote")->FirstChildElement("last");
+		cout << *buffer << endl;
+		XMLHandle xml_handle(xmlreply);
 
-		std::stringstream strValue;
+		xmllast=xml_handle.FirstChildElement("response").FirstChildElement("quotes").FirstChildElement("quote").FirstChildElement("last").ToElement();
 
-		strValue << (xmllast->GetText());
-		strValue >> last_tick;
+		if (xmllast!=0)	{
+			std::stringstream strValue;
+
+			strValue << (xmllast->GetText());
+			strValue >> last_tick;
+			buffer->clear();
+		}
+
 	}
 	else {
 		cout <<"Incomplete payload..." << endl;
