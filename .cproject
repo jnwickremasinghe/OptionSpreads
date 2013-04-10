@@ -37,6 +37,7 @@
 <option id="gnu.cpp.link.option.flags.1180945137" name="Linker flags" superClass="gnu.cpp.link.option.flags" value="`wx-config --libs`  `curl-config --libs`" valueType="string"/>
 <option id="gnu.cpp.link.option.libs.498918835" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 <listOptionValue builtIn="false" value="boost_thread-mt"/>
+<listOptionValue builtIn="false" value="oauth"/>
 </option>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1299878931" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 <additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
