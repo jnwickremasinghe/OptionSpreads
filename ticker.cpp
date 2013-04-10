@@ -47,33 +47,17 @@ void ticker::start(std::string c_key, std::string c_secret, std::string t_key, s
 	  curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
 	  curl_easy_setopt(curl, CURLOPT_HEADER, 0);
 	  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+	  curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
 	  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &ticker::writer);
 	  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
 	}
 	buffer.clear();
 	result = curl_easy_perform(curl);
-//	if (result == CURLE_OK)
-//	{
-//		XMLDocument xmlreply;
-//		XMLElement* xmllast;
-//		XMLNode *xmlfirstnode;
-//		xmlreply.Parse(buffer.c_str());
-//
-//		xmlfirstnode=xmlreply.FirstChild();
-//		xmlfirstnode=xmlfirstnode->FirstChild();
-//		xmllast=xmlreply.FirstChildElement("response")->FirstChildElement("quotes")->FirstChildElement("quote")->FirstChildElement("last");
-//
-//		std::stringstream strValue;
-//
-//		strValue << (xmllast->GetText());
-//		strValue >> last;
-////		return last;
-//	}
-//  else
-//  {
-//	cout << "Error: [" << result << "] - " << errorBuffer;
-//
-//  }
+	if (result != CURLE_OK)
+	{
+	cout << "Error: [" << result << "] - " << errorBuffer << endl;
+	}
+
 }
 
 ticker::~ticker()	{
