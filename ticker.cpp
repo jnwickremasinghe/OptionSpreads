@@ -12,14 +12,19 @@ using namespace std;
 
 static std::string buffer;
 static float last_tick;
+static float bid;
+static float ask;
+static std::string symbol;
+static std::string timestamp;
 
-//void ticker::init(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string symbol_list)	{
-//
-//
-//    m_Thread = boost::thread(&ticker::Entry, this, c_key, c_secret, t_key, t_secret, uri, symbol_list);
-//	//start(c_key, c_secret, t_key, t_secret, uri, symbol_list);
-//
-//};
+
+void ticker::init(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string symbol_list)	{
+
+
+    m_Thread = boost::thread(&ticker::start, this, c_key, c_secret, t_key, t_secret, uri, symbol_list);
+	//start(c_key, c_secret, t_key, t_secret, uri, symbol_list);
+
+};
 
 
 void ticker::start(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string symbol_list)	{
@@ -82,19 +87,70 @@ int ticker::writer(char *data, size_t size, size_t nmemb,
 
 	parse_success=xmlreply.Parse(buffer->c_str());
 	if (parse_success==tinyxml2::XML_NO_ERROR)	{
-		XMLElement* xmllast;
-		cout << *buffer << endl;
+
+		XMLElement* xmlvalue;
 		XMLHandle xml_handle(xmlreply);
+		XMLElement* xml_eml;
+		xml_eml = xml_handle.FirstChildElement().ToElement();
+		std::string ElementName = xml_eml->Name();
 
-		xmllast=xml_handle.FirstChildElement("response").FirstChildElement("quotes").FirstChildElement("quote").FirstChildElement("last").ToElement();
-
-		if (xmllast!=0)	{
-			std::stringstream strValue;
-
-			strValue << (xmllast->GetText());
-			strValue >> last_tick;
-			buffer->clear();
+		if (ElementName=="status")	{
+			cout << *buffer << endl;
 		}
+
+		buffer->clear();
+		if (ElementName=="quote")	{
+			xmlvalue= xml_handle.FirstChildElement("quote").FirstChildElement("symbol").ToElement();
+			if (xmlvalue!=0)	{
+				symbol=xmlvalue->GetText();
+			}
+			xmlvalue= xml_handle.FirstChildElement("quote").FirstChildElement("bid").ToElement();
+			if (xmlvalue!=0)	{
+				std::stringstream strValue;
+
+				strValue << (xmlvalue->GetText());
+				strValue >> bid;
+			}
+
+			xmlvalue= xml_handle.FirstChildElement("quote").FirstChildElement("ask").ToElement();
+			if (xmlvalue!=0)	{
+				std::stringstream strValue;
+
+				strValue << (xmlvalue->GetText());
+				strValue >> ask;
+			}
+
+			xmlvalue= xml_handle.FirstChildElement("quote").FirstChildElement("timestamp").ToElement();
+			if (xmlvalue!=0)	{
+				timestamp=xmlvalue->GetText();
+			}
+
+			cout << "Symbol: " << symbol << " Bid: " << bid << " Ask: " << ask << endl;
+		}
+
+
+
+		if (ElementName=="trade")	{
+			xmlvalue= xml_handle.FirstChildElement("quote").FirstChildElement("symbol").ToElement();
+			if (xmlvalue!=0)	{
+				symbol=xmlvalue->GetText();
+			}
+			xmlvalue= xml_handle.FirstChildElement("quote").FirstChildElement("last").ToElement();
+			if (xmlvalue!=0)	{
+				std::stringstream strValue;
+
+				strValue << (xmlvalue->GetText());
+				strValue >> last_tick;
+			}
+
+			xmlvalue= xml_handle.FirstChildElement("quote").FirstChildElement("timestamp").ToElement();
+			if (xmlvalue!=0)	{
+				timestamp=xmlvalue->GetText();
+			}
+
+			cout << "Symbol: " << symbol << " Trade: " << last_tick << " Ask: " << ask << endl;
+		}
+
 
 	}
 	else {
