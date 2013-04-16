@@ -15,7 +15,8 @@
 class ticker {
 
 public:
-	void init(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string symbol_list);
+	ticker(void);
+	void init(std::string symbol);
 	void start(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string symbol_list);
 	~ticker(void);
 	float last(std::string);

@@ -4,6 +4,9 @@
 #include <wx/image.h>
 // begin wxGlade: ::dependencies
 #include <wx/grid.h>
+#include "ticker.hpp"
+
+
 // end wxGlade
 
 #ifdef wxUSE_UNICODE
@@ -48,6 +51,8 @@ private:
     	BUTTON_GetQuote = wxID_HIGHEST + 1
     };
 
+
+	ticker mytick;
 protected:
     // begin wxGlade: MyFrame1::attributes
     wxMenuBar* frame_1_menubar;

@@ -60,7 +60,7 @@ MyFrame1::MyFrame1(wxWindow* parent, int id, const wxString& title, const wxPoin
     txtctrlTokenSecret = new wxTextCtrl(this, wxID_ANY, token_secret);
 
     label_5 = new wxStaticText(this, wxID_ANY, wxT("URI"));
-    txtctrlURI = new wxTextCtrl(this, wxID_ANY, wxT("MSTR"));
+    txtctrlURI = new wxTextCtrl(this, wxID_ANY, wxT("MSTR,FB,GOOG"));
     wxButtonOK = new wxButton(this, BUTTON_GetQuote, wxT("Get Quote"));
     grid_1 = new wxGrid(this, wxID_ANY);
 
@@ -71,9 +71,44 @@ MyFrame1::MyFrame1(wxWindow* parent, int id, const wxString& title, const wxPoin
 
     set_properties();
     do_layout();
-
-
     // end wxGlade
+
+	std::string URLBase = "https://api.tradeking.com/v1/market/ext/quotes.xml?symbols=";
+	URLBase="https://stream.tradeking.com/v1/market/quotes.xml?symbols=";
+
+
+	//get Consumer Key as ASCII const char*
+	wxString ctrl_value=txtctrlConsumerKey->GetValue();
+	std::string ConsumerKey;
+	ConsumerKey = ctrl_value.mb_str();
+
+
+	//get Consumer Secret as ASCII const char*
+	ctrl_value=txtctrlConsumerSecret->GetValue();
+	std::string ConsumerSecret;
+	ConsumerSecret = ctrl_value.mb_str();
+
+	//get Token Key as ASCII const char*
+	ctrl_value=txtctrlTokenKey->GetValue();
+	std::string TokenKey;
+	TokenKey = ctrl_value.mb_str();
+
+	//get Token Secret as ASCII const char*
+	ctrl_value=txtctrlTokenSecret->GetValue();
+	std::string TokenSecret;
+	TokenSecret = ctrl_value.mb_str();
+
+	//get URI as an ASCII const char*
+	ctrl_value=txtctrlURI->GetValue();
+	std::string symbol;
+	symbol=ctrl_value.mb_str();
+
+
+
+	//create quote object with oauth credentials & pass in symbol & URI
+
+	//mytick.start(ConsumerKey, ConsumerSecret, TokenKey, TokenSecret, URLBase, symbol);
+
 }
 
 void MyFrame1::OnQuit(wxCommandEvent& WXUNUSED(event))
@@ -171,20 +206,19 @@ void MyFrame1::get_quote(wxCommandEvent& WXUNUSED(event))
 	std::string symbol;
 	symbol=ctrl_value.mb_str();
 
-	float last_float;
 
-	//create quote object with oauth credentials & pass in symbol & URI
-	ticker mytick;
 	mytick.start(ConsumerKey, ConsumerSecret, TokenKey, TokenSecret, URLBase, symbol);
-	boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
+	ctrl_value=txtctrlURI->GetValue();
+	std::string symbol_list;
+	symbol_list=ctrl_value.mb_str();
 
-	last_float=mytick.last(symbol);
+	mytick.init(symbol_list);
 
-	std::ostringstream buff;
-	buff<<last_float;
-	std::string last_str=buff.str();
-
-	grid_1->SetCellValue(0,2,wxString::FromAscii(last_str.c_str()));
+//	std::ostringstream buff;
+//	buff<<last_float;
+//	std::string last_str=buff.str();
+//
+//	grid_1->SetCellValue(0,2,wxString::FromAscii(last_str.c_str()));
 
 
 

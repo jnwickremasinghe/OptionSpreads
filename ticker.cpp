@@ -17,17 +17,23 @@ static float ask;
 static std::string symbol;
 static std::string timestamp;
 
+ticker::ticker(void)	{
+	cout <<"Ticker created" << endl;
+}
 
-void ticker::init(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string symbol_list)	{
+void ticker::init(std::string symbol)	{
 
 
-    m_Thread = boost::thread(&ticker::start, this, c_key, c_secret, t_key, t_secret, uri, symbol_list);
+    m_Thread = boost::thread(&ticker::last, this, symbol);
 	//start(c_key, c_secret, t_key, t_secret, uri, symbol_list);
 
 };
 
 
 void ticker::start(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string symbol_list)	{
+
+//	cout << cons_key << endl;
+	cout << c_key << endl;
 
 	cons_key=c_key;
 	cons_secret=c_secret;
@@ -36,38 +42,14 @@ void ticker::start(std::string c_key, std::string c_secret, std::string t_key, s
 	url_base=uri;
 	symbols=symbol_list;
 
-	char *req_url = NULL;
 
-	std::string full_url=url_base+symbols;
-
-	req_url = oauth_sign_url2(full_url.c_str(), NULL, OA_HMAC, NULL, cons_key.c_str(), cons_secret.c_str(), token_key.c_str(), token_secret.c_str());
-
-	std::string url_string(req_url);
-
-	curl = curl_easy_init();
-	if (curl)
-	{
-	  curl_easy_setopt(curl, CURLOPT_URL, url_string.c_str());
-	  // Now set up all of the curl options
-	  curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
-	  curl_easy_setopt(curl, CURLOPT_HEADER, 0);
-	  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
-	  curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
-	  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &ticker::writer);
-	  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
-	}
-	buffer.clear();
-	result = curl_easy_perform(curl);
-	if (result != CURLE_OK)
-	{
-	cout << "Error: [" << result << "] - " << errorBuffer << endl;
-	}
 
 }
 
 ticker::~ticker()	{
 	  // Always cleanup
-	  curl_easy_cleanup(curl);
+	curl_easy_cleanup(curl);
+	cout<< "ticker destroyed" << endl;
 }
 
 // This is the writer call back function used by curl
@@ -97,7 +79,7 @@ int ticker::writer(char *data, size_t size, size_t nmemb,
 		if (ElementName=="status")	{
 			cout << *buffer << endl;
 		}
-
+		//cout << *buffer << endl;
 		buffer->clear();
 		if (ElementName=="quote")	{
 			xmlvalue= xml_handle.FirstChildElement("quote").FirstChildElement("symbol").ToElement();
@@ -125,17 +107,17 @@ int ticker::writer(char *data, size_t size, size_t nmemb,
 				timestamp=xmlvalue->GetText();
 			}
 
-			cout << "Symbol: " << symbol << " Bid: " << bid << " Ask: " << ask << endl;
+			cout << "Time: " <<  timestamp << " Symbol: " << symbol << " Bid: " << bid << " Ask: " << ask << endl;
 		}
 
 
 
 		if (ElementName=="trade")	{
-			xmlvalue= xml_handle.FirstChildElement("quote").FirstChildElement("symbol").ToElement();
+			xmlvalue= xml_handle.FirstChildElement("trade").FirstChildElement("symbol").ToElement();
 			if (xmlvalue!=0)	{
 				symbol=xmlvalue->GetText();
 			}
-			xmlvalue= xml_handle.FirstChildElement("quote").FirstChildElement("last").ToElement();
+			xmlvalue= xml_handle.FirstChildElement("trade").FirstChildElement("last").ToElement();
 			if (xmlvalue!=0)	{
 				std::stringstream strValue;
 
@@ -143,12 +125,12 @@ int ticker::writer(char *data, size_t size, size_t nmemb,
 				strValue >> last_tick;
 			}
 
-			xmlvalue= xml_handle.FirstChildElement("quote").FirstChildElement("timestamp").ToElement();
+			xmlvalue= xml_handle.FirstChildElement("trade").FirstChildElement("timestamp").ToElement();
 			if (xmlvalue!=0)	{
 				timestamp=xmlvalue->GetText();
 			}
 
-			cout << "Symbol: " << symbol << " Trade: " << last_tick << " Ask: " << ask << endl;
+			cout << "Time: " <<  timestamp << " Symbol: "<< symbol << " Trade: " << last_tick << " Ask: " << ask << endl;
 		}
 
 
@@ -167,58 +149,37 @@ int ticker::writer(char *data, size_t size, size_t nmemb,
 }
 
 
+
 float ticker::last(std::string symbol) {
 
+	char *req_url = NULL;
+
+	std::string full_url=url_base+symbols;
+
+	req_url = oauth_sign_url2(full_url.c_str(), NULL, OA_HMAC, NULL, cons_key.c_str(), cons_secret.c_str(), token_key.c_str(), token_secret.c_str());
+	cout << req_url << endl;
+	std::string url_string(req_url);
+
+	curl = curl_easy_init();
+	if (curl)
+	{
+	  curl_easy_setopt(curl, CURLOPT_URL, url_string.c_str());
+	  // Now set up all of the curl options
+	  curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
+	  curl_easy_setopt(curl, CURLOPT_HEADER, 0);
+	  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+	  curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
+	  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &ticker::writer);
+	  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
+	}
+	buffer.clear();
+	result = curl_easy_perform(curl);
+	if (result != CURLE_OK)
+	{
+	cout << "Error: [" << result << "] - " << errorBuffer << endl;
+	}
+
 	return last_tick;
-
-//	char *req_url = NULL;
-//	float last;
-//
-//	std::string full_url=url_base+symbol;
-//
-//    req_url = oauth_sign_url2(full_url.c_str(), NULL, OA_HMAC, NULL, cons_key.c_str(), cons_secret.c_str(), token_key.c_str(), token_secret.c_str());
-//
-//    std::string url_string(req_url);
-//
-//	cout << "Retrieving " << url_string << endl;
-//
-//
-//
-//
-//	if (curl)
-//	{
-//		curl_easy_setopt(curl, CURLOPT_URL, url_string.c_str());
-//		// Attempt to retrieve the remote page
-//		buffer.clear();
-//		result = curl_easy_perform(curl);
-//
-//		// Did we succeed?
-//		if (result == CURLE_OK)
-//		{
-//			XMLDocument xmlreply;
-//			XMLElement* xmllast;
-//			XMLNode *xmlfirstnode;
-//			xmlreply.Parse(buffer.c_str());
-//
-//			xmlfirstnode=xmlreply.FirstChild();
-//			xmlfirstnode=xmlfirstnode->FirstChild();
-//			xmllast=xmlreply.FirstChildElement("response")->FirstChildElement("quotes")->FirstChildElement("quote")->FirstChildElement("last");
-//
-//			std::stringstream strValue;
-//
-//			strValue << (xmllast->GetText());
-//			strValue >> last;
-//			return last;
-//		}
-//	  else
-//	  {
-//		cout << "Error: [" << result << "] - " << errorBuffer;
-//		return -1;
-//	  }
-//	}
-//	else
-//		return -1;
-
 
 
 
