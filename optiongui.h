@@ -5,7 +5,7 @@
 // begin wxGlade: ::dependencies
 #include <wx/grid.h>
 #include "ticker.hpp"
-
+#include "quote.hpp"
 
 // end wxGlade
 
@@ -40,6 +40,8 @@ public:
     MyFrame1(wxWindow* parent, int id, const wxString& title, const wxPoint& pos=wxDefaultPosition, const wxSize& size=wxDefaultSize, long style=wxDEFAULT_FRAME_STYLE);
     void OnQuit(wxCommandEvent & event);
 
+    boost::shared_ptr<quote> quote_ptr;
+    quote* std_quote;
 private:
     // begin wxGlade: MyFrame1::methods
     void set_properties();

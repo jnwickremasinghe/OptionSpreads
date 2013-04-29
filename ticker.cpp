@@ -21,9 +21,12 @@ ticker::ticker(void)	{
 	cout <<"Ticker created" << endl;
 }
 
-void ticker::init(std::string symbol)	{
+void ticker::init(quote* quote_ptr)	{
 
+	std::string symbol;
 
+	this_quote=(void*) quote_ptr;
+	symbol = quote_ptr->symbol();
     m_Thread = boost::thread(&ticker::last, this, symbol);
 	//start(c_key, c_secret, t_key, t_secret, uri, symbol_list);
 
@@ -32,17 +35,12 @@ void ticker::init(std::string symbol)	{
 
 void ticker::start(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string symbol_list)	{
 
-//	cout << cons_key << endl;
-	cout << c_key << endl;
-
 	cons_key=c_key;
 	cons_secret=c_secret;
 	token_key=t_key;
 	token_secret=t_secret;
 	url_base=uri;
 	symbols=symbol_list;
-
-
 
 }
 
@@ -79,6 +77,7 @@ int ticker::writer(char *data, size_t size, size_t nmemb,
 		if (ElementName=="status")	{
 			cout << *buffer << endl;
 		}
+		quote* myself = (quote*) this_quote;
 		//cout << *buffer << endl;
 		buffer->clear();
 		if (ElementName=="quote")	{
@@ -107,7 +106,10 @@ int ticker::writer(char *data, size_t size, size_t nmemb,
 				timestamp=xmlvalue->GetText();
 			}
 
-			cout << "Time: " <<  timestamp << " Symbol: " << symbol << " Bid: " << bid << " Ask: " << ask << endl;
+
+			myself->ask(ask);
+			myself->bid(bid);
+			//cout << "Time: " <<  timestamp << " Symbol: " << symbol << " Bid: " << bid << " Ask: " << ask << endl;
 		}
 
 
@@ -130,7 +132,11 @@ int ticker::writer(char *data, size_t size, size_t nmemb,
 				timestamp=xmlvalue->GetText();
 			}
 
-			cout << "Time: " <<  timestamp << " Symbol: "<< symbol << " Trade: " << last_tick << " Ask: " << ask << endl;
+			myself->ask(ask);
+			myself->bid(bid);
+			myself->last(last_tick);
+
+			//cout << "Time: " <<  timestamp << " Symbol: "<< symbol << " Trade: " << last_tick << " Ask: " << ask << endl;
 		}
 
 
@@ -153,7 +159,6 @@ int ticker::writer(char *data, size_t size, size_t nmemb,
 float ticker::last(std::string symbol) {
 
 	char *req_url = NULL;
-
 	std::string full_url=url_base+symbols;
 
 	req_url = oauth_sign_url2(full_url.c_str(), NULL, OA_HMAC, NULL, cons_key.c_str(), cons_secret.c_str(), token_key.c_str(), token_secret.c_str());
