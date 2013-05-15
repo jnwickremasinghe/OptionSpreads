@@ -5,6 +5,7 @@
 // begin wxGlade: ::dependencies
 #include <wx/grid.h>
 #include "ticker.hpp"
+#include "wxticker.hpp"
 #include "quote.hpp"
 
 // end wxGlade
@@ -39,13 +40,17 @@ public:
 
     MyFrame1(wxWindow* parent, int id, const wxString& title, const wxPoint& pos=wxDefaultPosition, const wxSize& size=wxDefaultSize, long style=wxDEFAULT_FRAME_STYLE);
     void OnQuit(wxCommandEvent & event);
+    void onQuoteUpdate(wxCommandEvent & event);
 
     boost::shared_ptr<quote> quote_ptr;
     quote* std_quote;
+    wxticker* mywxtick;
+    quote* wxquote;
 private:
     // begin wxGlade: MyFrame1::methods
     void set_properties();
     void do_layout();
+
     void get_quote(wxCommandEvent& WXUNUSED(event));
     // end wxGlade
     enum
@@ -54,7 +59,8 @@ private:
     };
 
 
-	ticker mytick;
+//	ticker mytick;
+//	wxticker mywxtick(this);
 protected:
     // begin wxGlade: MyFrame1::attributes
     wxMenuBar* frame_1_menubar;
