@@ -27,7 +27,6 @@ void ticker::init(quote* quote_ptr)	{
 
 	this_quote=(void*) quote_ptr;
 	symbol = quote_ptr->symbol();
-    m_Thread = boost::thread(&ticker::last, this, symbol);
 	//start(c_key, c_secret, t_key, t_secret, uri, symbol_list);
 
 };

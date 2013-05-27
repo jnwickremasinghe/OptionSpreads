@@ -10,7 +10,6 @@
 
 #include <string>
 #include "quote.hpp"
-#include <boost/thread.hpp>
 #include <curl/curl.h>
 
 static void* this_quote;
@@ -42,7 +41,6 @@ private:
 
 	char errorBuffer[256];
 	// Write all expected data in here
-    boost::thread m_Thread;
 	static int writer(char *data, size_t size, size_t nmemb,
             std::string *buffer);
 

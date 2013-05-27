@@ -7,7 +7,7 @@
 #include "ticker.hpp"
 #include "wxticker.hpp"
 #include "quote.hpp"
-
+#include <boost/shared_ptr.hpp>
 // end wxGlade
 
 #ifdef wxUSE_UNICODE
