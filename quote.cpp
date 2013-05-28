@@ -3,9 +3,10 @@
 #include <string>
 
 
-quote::quote(std::string this_symbol)	{
+quote::quote(std::string this_symbol, int order_num )	{
 	_symbol=this_symbol;
-	std::cout << _symbol << " created." <<std::endl;
+	_order_num=order_num;
+	std::cout << _symbol << " created, order: " << _order_num <<std::endl;
 }
 
 quote::~quote()	{
@@ -29,4 +30,9 @@ void quote::last(double trade)	{
 
 std::string quote::symbol(void)	{
 	return _symbol;
+}
+
+
+int quote::order(void) {
+	return _order_num;
 }

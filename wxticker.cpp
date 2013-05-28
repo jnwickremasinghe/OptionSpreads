@@ -36,8 +36,6 @@ void wxticker::init(quote* quote_ptr)	{
 
 wxThread::ExitCode wxticker::Entry()	{
 
-	cout << cons_key << endl << token_key << endl;
-
 	last("test");
 
 	return 0;

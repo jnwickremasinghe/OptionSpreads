@@ -2,12 +2,13 @@
 
 #include <wx/wx.h>
 #include <wx/image.h>
+#include <map>
 // begin wxGlade: ::dependencies
 #include <wx/grid.h>
 #include "ticker.hpp"
 #include "wxticker.hpp"
 #include "quote.hpp"
-#include <boost/shared_ptr.hpp>
+//#include <boost/shared_ptr.hpp>
 // end wxGlade
 
 #ifdef wxUSE_UNICODE
@@ -42,7 +43,6 @@ public:
     void OnQuit(wxCommandEvent & event);
     void onQuoteUpdate(wxCommandEvent & event);
 
-    boost::shared_ptr<quote> quote_ptr;
     quote* std_quote;
     wxticker* mywxtick;
     quote* wxquote;
@@ -59,8 +59,8 @@ private:
     };
 
 
-//	ticker mytick;
-//	wxticker mywxtick(this);
+    std::map <std::string, quote* > symbols;
+
 protected:
     // begin wxGlade: MyFrame1::attributes
     wxMenuBar* frame_1_menubar;
