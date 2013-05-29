@@ -37,6 +37,7 @@ MyFrame1::MyFrame1(wxWindow* parent, int id, const wxString& title, const wxPoin
     wxString cons_secret=wxEmptyString;
     wxString token_key=wxEmptyString;
     wxString token_secret=wxEmptyString;
+    wxString watchlist=wxEmptyString;
 
     if (parameters.is_open())
 		{
@@ -49,7 +50,8 @@ MyFrame1::MyFrame1(wxWindow* parent, int id, const wxString& title, const wxPoin
     	token_key=wxString::FromAscii(line.c_str());
     	getline(parameters, line);
     	token_secret=wxString::FromAscii(line.c_str());
-
+    	getline(parameters, line);
+    	watchlist=wxString::FromAscii(line.c_str());
 
 		}
 
@@ -66,7 +68,7 @@ MyFrame1::MyFrame1(wxWindow* parent, int id, const wxString& title, const wxPoin
     txtctrlTokenSecret = new wxTextCtrl(this, wxID_ANY, token_secret);
 
     label_5 = new wxStaticText(this, wxID_ANY, wxT("URI"));
-    txtctrlURI = new wxTextCtrl(this, wxID_ANY, wxT("MSTR,FB,GOOG"));
+    txtctrlURI = new wxTextCtrl(this, wxID_ANY, watchlist);
     wxButtonOK = new wxButton(this, BUTTON_GetQuote, wxT("Get Quote"));
     grid_1 = new wxGrid(this, wxID_ANY);
 
@@ -129,12 +131,14 @@ void MyFrame1::set_properties()
 {
     // begin wxGlade: MyFrame1::set_properties
     SetTitle(wxT("Option Spreads"));
-    grid_1->CreateGrid(10, 5);
+    grid_1->CreateGrid(10, 6);
     grid_1->SetColLabelValue(0, wxT("Strike"));
     grid_1->SetColLabelValue(1, wxT("Symbol"));
-    grid_1->SetColLabelValue(2, wxT("Last"));
-    grid_1->SetColLabelValue(3, wxT("Date time"));
-    grid_1->SetColLabelValue(4, wxT("Open Interest"));
+    grid_1->SetColLabelValue(2, wxT("Bid"));
+    grid_1->SetColLabelValue(3, wxT("Ask"));
+    grid_1->SetColLabelValue(4, wxT("Last"));
+    grid_1->SetColLabelValue(5, wxT("Date time"));
+    grid_1->SetColSize(5,120);
     // end wxGlade
 }
 
@@ -251,11 +255,11 @@ void MyFrame1::get_quote(wxCommandEvent& WXUNUSED(event))
 	} while (comma_position!=string::npos);
 
 
-	std::map<std::string, quote*>::iterator iter;
-	for (iter = symbols.begin(); iter != symbols.end(); ++iter) {
-		   cout << iter->first << "=" << iter->second << endl;; //Not a method call
-
-		}
+//	std::map<std::string, quote*>::iterator iter;
+//	for (iter = symbols.begin(); iter != symbols.end(); ++iter) {
+//		   cout << iter->first << "=" << iter->second << endl;; //Not a method call
+//
+//		}
 
 //	std_quote = new quote(symbol);
 //	mytick.init(std_quote);
@@ -313,7 +317,7 @@ void MyFrame1::onQuoteUpdate(wxCommandEvent& evt)	{
 	std::string timestamp;
 
 	if (ElementName=="quote" )	{
-		//std::cout << evt.GetString().mb_str(wxConvUTF8) << endl;
+
 		xmlvalue= xml_handle.FirstChildElement("quote").FirstChildElement("symbol").ToElement();
 		if (xmlvalue!=0)	{
 			symbol=xmlvalue->GetText();
@@ -334,20 +338,30 @@ void MyFrame1::onQuoteUpdate(wxCommandEvent& evt)	{
 			strValue >> ask;
 		}
 
-		xmlvalue= xml_handle.FirstChildElement("quote").FirstChildElement("timestamp").ToElement();
+		xmlvalue= xml_handle.FirstChildElement("quote").FirstChildElement("datetime").ToElement();
 		if (xmlvalue!=0)	{
 			timestamp=xmlvalue->GetText();
 		}
 
+		//split datetime into date & time
+		std::string quote_date;
+		std::string quote_time;
+		int split_pos=timestamp.find('T',0);
+		quote_date=timestamp.substr(0,split_pos);
+		quote_time=timestamp.substr(split_pos+1,string::npos);
+
 		symbols[symbol]->ask(ask);
 		symbols[symbol]->bid(bid);
+		symbols[symbol]->date(quote_date);
+		symbols[symbol]->time(quote_time);
+		symbols[symbol]->save();
 
 		int row_num=symbols[symbol]->order()-1;
 		grid_1->SetCellValue(row_num,1,wxString::FromAscii(symbol.c_str()));
+		grid_1->SetCellValue(row_num,2,wxString::Format(wxT("%f"),bid));
+		grid_1->SetCellValue(row_num,3,wxString::Format(wxT("%f"),ask));
+//		grid_1->SetCellValue(row_num,5,wxString::FromAscii(quote_time.c_str()));
 
-//		grid_1->SetCellValue(0,3,wxString::Format(wxT("%f"),bid));
-//		grid_1->SetCellValue(0,4,wxString::Format(wxT("%f"),ask));
-		grid_1->SetCellValue(row_num,3,wxString::FromAscii(timestamp.c_str()));
 	}
 
 
@@ -370,25 +384,27 @@ void MyFrame1::onQuoteUpdate(wxCommandEvent& evt)	{
 				timestamp=xmlvalue->GetText();
 			}
 
-
-		//cout << "Time: " <<  timestamp << " Symbol: "<< symbol << " Trade: " << last_tick << " Ask: " << ask << endl;
+		//split datetime into date & time
+		std::string quote_date;
+		std::string quote_time;
+		int split_pos=timestamp.find('T',0);
+		quote_date=timestamp.substr(0,split_pos);
+		quote_time=timestamp.substr(split_pos+1,string::npos);
 
 		symbols[symbol]->ask(ask);
 		symbols[symbol]->bid(bid);
 		symbols[symbol]->last(last);
+		symbols[symbol]->date(quote_date);
+		symbols[symbol]->time(quote_time);
+		symbols[symbol]->save();
 
 		int row_num=symbols[symbol]->order()-1;
 		grid_1->SetCellValue(row_num,1,wxString::FromAscii(symbol.c_str()));
-		grid_1->SetCellValue(row_num,2,wxString::Format(wxT("%f"),last));
-//		grid_1->SetCellValue(0,3,wxString::Format(wxT("%f"),bid));
-//		grid_1->SetCellValue(0,4,wxString::Format(wxT("%f"),ask));
-		grid_1->SetCellValue(row_num,3,wxString::FromAscii(timestamp.c_str()));
+		grid_1->SetCellValue(row_num,2,wxString::Format(wxT("%f"),bid));
+		grid_1->SetCellValue(row_num,3,wxString::Format(wxT("%f"),ask));
+		grid_1->SetCellValue(row_num,4,wxString::Format(wxT("%f"),last));
+		grid_1->SetCellValue(row_num,5,wxString::FromAscii(quote_time.c_str()));
 	}
-
-
-
-
-
 
 
 }

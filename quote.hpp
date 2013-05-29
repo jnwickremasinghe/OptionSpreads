@@ -14,6 +14,10 @@ public:
 	std::string symbol(void);
 	double last(void);
 	int order(void);
+	void date(std::string date_value);
+	void time(std::string time_value);
+	int save(void);
+
 
 private:
 
@@ -22,9 +26,8 @@ private:
 	double _bid;
 	std::string _symbol;
 	int _order_num;
-
+	std::string _date;
+	std::string _time;
 };
-
-bool operator< (const quote &lhs, quote &rhs);
 
 #endif // quote_h

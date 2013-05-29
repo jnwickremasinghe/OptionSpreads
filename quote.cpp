@@ -15,17 +15,14 @@ quote::~quote()	{
 
 void quote::ask(double ask)	{
 	_ask=ask;
-	std::cout << _symbol << _ask << std::endl;
 }
 
 void quote::bid(double bid)	{
 	_bid=bid;
-	std::cout << _symbol << _bid << std::endl;
 }
 
 void quote::last(double trade)	{
 	_trade=trade;
-	std::cout << _symbol << _trade << std::endl;
 }
 
 std::string quote::symbol(void)	{
@@ -35,4 +32,19 @@ std::string quote::symbol(void)	{
 
 int quote::order(void) {
 	return _order_num;
+}
+
+void quote::date(std::string date_value)	{
+	_date=date_value;
+}
+void quote::time(std::string time_value)	{
+	_time=time_value;
+}
+
+int quote::save(void)	{
+	//write current value of quote out to database
+	//for now just dump to file :)
+	std::cout << _symbol << "," << _bid << "," << _ask << "," << _trade << "," << _date	<< "," << _time << std::endl;
+
+	return 0;
 }
