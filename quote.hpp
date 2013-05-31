@@ -16,7 +16,7 @@ public:
 	int order(void);
 	void date(std::string date_value);
 	void time(std::string time_value);
-	int save(void);
+	int save(std::string tick_type);
 
 
 private:

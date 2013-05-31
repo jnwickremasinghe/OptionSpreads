@@ -41,10 +41,16 @@ void quote::time(std::string time_value)	{
 	_time=time_value;
 }
 
-int quote::save(void)	{
-	//write current value of quote out to database
+int quote::save(std::string tick_type)	{
+	//write current value of quote or trade out to database
 	//for now just dump to file :)
-	std::cout << _symbol << "," << _bid << "," << _ask << "," << _trade << "," << _date	<< "," << _time << std::endl;
+	if (tick_type=="quote")	{
+		std::cout << _symbol << ",bid," << _bid << "," << _time << std::endl;
+		std::cout << _symbol << ",ask," << _ask << "," << _time << std::endl;
+	} else	{
+		std::cout << _symbol << ",trade," << _trade << "," << _date << "," << _time << std::endl;
+	}
+
 
 	return 0;
 }

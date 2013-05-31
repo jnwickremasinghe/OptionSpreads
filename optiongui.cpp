@@ -354,7 +354,7 @@ void MyFrame1::onQuoteUpdate(wxCommandEvent& evt)	{
 		symbols[symbol]->bid(bid);
 		symbols[symbol]->date(quote_date);
 		symbols[symbol]->time(quote_time);
-		symbols[symbol]->save();
+		symbols[symbol]->save("quote");
 
 		int row_num=symbols[symbol]->order()-1;
 		grid_1->SetCellValue(row_num,1,wxString::FromAscii(symbol.c_str()));
@@ -396,7 +396,7 @@ void MyFrame1::onQuoteUpdate(wxCommandEvent& evt)	{
 		symbols[symbol]->last(last);
 		symbols[symbol]->date(quote_date);
 		symbols[symbol]->time(quote_time);
-		symbols[symbol]->save();
+		symbols[symbol]->save("trade");
 
 		int row_num=symbols[symbol]->order()-1;
 		grid_1->SetCellValue(row_num,1,wxString::FromAscii(symbol.c_str()));
