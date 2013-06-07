@@ -185,7 +185,7 @@ float wxticker::last(std::string symbol) {
 	std::string full_url=url_base+symbols;
 
 	req_url = oauth_sign_url2(full_url.c_str(), NULL, OA_HMAC, NULL, cons_key.c_str(), cons_secret.c_str(), token_key.c_str(), token_secret.c_str());
-	cout << req_url << endl;
+
 	std::string url_string(req_url);
 
 	curl = curl_easy_init();

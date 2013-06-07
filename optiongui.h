@@ -27,7 +27,7 @@
 #ifndef OPTION_H
 #define OPTION_H
 
-
+const std::string config_file="/home/joseph/workspace2/OptionSpreads/keys.txt";
 
 
 // begin wxGlade: ::extracode

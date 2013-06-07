@@ -11,9 +11,6 @@
 #include <sstream>
 
 
-//#include <boost/shared_ptr.hpp>
-#define CONFIG_FILE "/home/joseph/workspace2/OptionSpreads/keys.txt"
-
 const int QUOTE_CALLBACK = 100000;
 
 using namespace std;
@@ -30,7 +27,7 @@ MyFrame1::MyFrame1(wxWindow* parent, int id, const wxString& title, const wxPoin
     SetMenuBar(frame_1_menubar);
 
     ifstream parameters;
-    parameters.open("" CONFIG_FILE);
+    parameters.open(config_file.c_str());
 
     //initialize oauth credentials as empty, try to read them in
     wxString cons_key=wxEmptyString;
