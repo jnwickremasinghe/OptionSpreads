@@ -35,6 +35,10 @@ MyFrame1::MyFrame1(wxWindow* parent, int id, const wxString& title, const wxPoin
     wxString token_key=wxEmptyString;
     wxString token_secret=wxEmptyString;
     wxString watchlist=wxEmptyString;
+    wxString option_list=wxEmptyString;
+    wxString URL=wxEmptyString;
+    wxString DBPath=wxEmptyString;
+
 
     if (parameters.is_open())
 		{
@@ -48,8 +52,13 @@ MyFrame1::MyFrame1(wxWindow* parent, int id, const wxString& title, const wxPoin
     	getline(parameters, line);
     	token_secret=wxString::FromAscii(line.c_str());
     	getline(parameters, line);
+    	URL=wxString::FromAscii(line.c_str());
+    	getline(parameters, line);
+    	DBPath=wxString::FromAscii(line.c_str());
+    	getline(parameters, line);
     	watchlist=wxString::FromAscii(line.c_str());
-
+    	getline(parameters, line);
+    	option_list=wxString::FromAscii(line.c_str());
 		}
 
     label_1 = new wxStaticText(this, wxID_ANY, wxT("Consumer Key"));
@@ -64,8 +73,18 @@ MyFrame1::MyFrame1(wxWindow* parent, int id, const wxString& title, const wxPoin
     label_4 = new wxStaticText(this, wxID_ANY, wxT("Token Secret"));
     txtctrlTokenSecret = new wxTextCtrl(this, wxID_ANY, token_secret);
 
-    label_5 = new wxStaticText(this, wxID_ANY, wxT("URI"));
-    txtctrlURI = new wxTextCtrl(this, wxID_ANY, watchlist);
+    label_4a = new wxStaticText(this, wxID_ANY, wxT("URL"));
+    txtctrlURL = new wxTextCtrl(this, wxID_ANY, URL);
+
+    label_4b = new wxStaticText(this, wxID_ANY, wxT("Options"));
+    txtctrlOption_Symbols = new wxTextCtrl(this, wxID_ANY, option_list);
+
+    label_5 = new wxStaticText(this, wxID_ANY, wxT("Symbols"));
+    txtctrlSymbols = new wxTextCtrl(this, wxID_ANY, watchlist);
+
+    label_6 = new wxStaticText(this, wxID_ANY, wxT("DB"));
+    txtctrlDBPath= new wxTextCtrl(this, wxID_ANY, DBPath);
+
     wxButtonOK = new wxButton(this, BUTTON_GetQuote, wxT("Get Quote"));
     grid_1 = new wxGrid(this, wxID_ANY);
 
@@ -73,47 +92,9 @@ MyFrame1::MyFrame1(wxWindow* parent, int id, const wxString& title, const wxPoin
     Connect(BUTTON_GetQuote,wxEVT_COMMAND_BUTTON_CLICKED , wxCommandEventHandler(MyFrame1::get_quote));
     Connect(QUOTE_CALLBACK, wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(MyFrame1::onQuoteUpdate));
 
-
-
     set_properties();
     do_layout();
     // end wxGlade
-
-	std::string URLBase = "https://api.tradeking.com/v1/market/ext/quotes.xml?symbols=";
-	URLBase="https://stream.tradeking.com/v1/market/quotes.xml?symbols=";
-
-
-	//get Consumer Key as ASCII const char*
-	wxString ctrl_value=txtctrlConsumerKey->GetValue();
-	std::string ConsumerKey;
-	ConsumerKey = ctrl_value.mb_str();
-
-
-	//get Consumer Secret as ASCII const char*
-	ctrl_value=txtctrlConsumerSecret->GetValue();
-	std::string ConsumerSecret;
-	ConsumerSecret = ctrl_value.mb_str();
-
-	//get Token Key as ASCII const char*
-	ctrl_value=txtctrlTokenKey->GetValue();
-	std::string TokenKey;
-	TokenKey = ctrl_value.mb_str();
-
-	//get Token Secret as ASCII const char*
-	ctrl_value=txtctrlTokenSecret->GetValue();
-	std::string TokenSecret;
-	TokenSecret = ctrl_value.mb_str();
-
-	//get URI as an ASCII const char*
-	ctrl_value=txtctrlURI->GetValue();
-	std::string symbol;
-	symbol=ctrl_value.mb_str();
-
-
-
-	//create quote object with oauth credentials & pass in symbol & URI
-
-	//mytick.start(ConsumerKey, ConsumerSecret, TokenKey, TokenSecret, URLBase, symbol);
 
 };
 
@@ -149,7 +130,10 @@ void MyFrame1::do_layout()
     wxBoxSizer* ConsSecretSizer = new wxBoxSizer(wxHORIZONTAL);
     wxBoxSizer* TokenKeySizer = new wxBoxSizer(wxHORIZONTAL);
     wxBoxSizer* TokenSecretSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxBoxSizer* URISizer = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer* TokenURLSizer = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer* OptionSizer = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer* SymbolsSizer = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer* DBPathSizer = new wxBoxSizer(wxHORIZONTAL);
 
     ConsKeySizer->Add(label_1, 0, wxRIGHT, 8);
     ConsKeySizer->Add(txtctrlConsumerKey, 1,0,10);
@@ -162,15 +146,30 @@ void MyFrame1::do_layout()
 
     TokenSecretSizer->Add(label_4, 0, wxRIGHT, 8);
     TokenSecretSizer->Add(txtctrlTokenSecret, 1,0,10);
-    URISizer->Add(label_5,0,wxRIGHT,10);
-    URISizer->Add(txtctrlURI,1,0,10);
-    URISizer->Add(wxButtonOK,0,0,10);
+
+    TokenURLSizer->Add(label_4a,0,wxRIGHT,10);
+    TokenURLSizer->Add(txtctrlURL,1,0,10);
+
+    DBPathSizer->Add(label_6, 0, wxRIGHT, 8);
+    DBPathSizer->Add(txtctrlDBPath, 1,0,10);
+
+    OptionSizer->Add(label_4b, 0, wxRIGHT, 8);
+    OptionSizer->Add(txtctrlOption_Symbols, 1,0,10);
+
+    SymbolsSizer->Add(label_5, 0, wxRIGHT, 8);
+    SymbolsSizer->Add(txtctrlSymbols, 1,0,10);
+    SymbolsSizer->Add(wxButtonOK,0,0,10);
+
 
     sizer_4->Add(ConsKeySizer, 1,wxEXPAND,0);
     sizer_4->Add(ConsSecretSizer, 1,wxEXPAND,0);
     sizer_4->Add(TokenKeySizer, 1,wxEXPAND,0);
     sizer_4->Add(TokenSecretSizer, 1,wxEXPAND,0);
-    sizer_4->Add(URISizer,1,wxEXPAND,0);
+    sizer_4->Add(TokenURLSizer, 1,wxEXPAND,0);
+    sizer_4->Add(DBPathSizer, 1,wxEXPAND,0);
+    sizer_4->Add(OptionSizer,1,wxEXPAND,0);
+    sizer_4->Add(SymbolsSizer,1,wxEXPAND,0);
+
 
 //    sizer_1->Add(ConsSecretSizer, 1, wxEXPAND, 10);
     sizer_1->Add(sizer_4, 1, wxALL|wxEXPAND, 10);
@@ -187,8 +186,8 @@ void MyFrame1::get_quote(wxCommandEvent& WXUNUSED(event))
 {
 
 
-	std::string URLBase = "https://api.tradeking.com/v1/market/ext/quotes.xml?symbols=";
-	URLBase="https://stream.tradeking.com/v1/market/quotes.xml?symbols=";
+	std::string URLBase; // = "https://api.tradeking.com/v1/market/ext/quotes.xml?symbols=";
+	URLBase=(txtctrlURL->GetValue()).mb_str();
 
 
 	//get Consumer Key as ASCII const char*
@@ -213,10 +212,14 @@ void MyFrame1::get_quote(wxCommandEvent& WXUNUSED(event))
 	TokenSecret = ctrl_value.mb_str();
 
 	//get URI as an ASCII const char*
-	ctrl_value=txtctrlURI->GetValue();
+	ctrl_value=txtctrlSymbols->GetValue();
 
 	std::string symbol_list;
 	symbol_list=ctrl_value.mb_str();
+
+	std::string db_connection;
+	ctrl_value=txtctrlDBPath->GetValue();
+	db_connection=ctrl_value.mb_str();
 
 	//create a quote object for each inputted symbol
 	std::string symbol_temp=symbol_list;
@@ -224,7 +227,6 @@ void MyFrame1::get_quote(wxCommandEvent& WXUNUSED(event))
 	size_t comma_position;
 	//comma_position=symbol_list.find(',',comma_position);
 
-//for now just take first symbol from comma-delimited list and use that.
 	int symbol_order=1;
 	do	{
 		comma_position=0;
@@ -239,7 +241,7 @@ void MyFrame1::get_quote(wxCommandEvent& WXUNUSED(event))
 		}
 		if (!symbol.empty())	{
 			//boost::shared_ptr<quote> mysymbol(symbol);
-			wxquote = new quote(symbol,symbol_order);
+			wxquote = new quote(symbol,symbol_order, db_connection);
 			symbols[wxquote->symbol()]=wxquote;
 			grid_1->SetCellValue(symbol_order-1,1,wxString::FromAscii(symbol.c_str()));
 //			quote mysymbol(symbol);
@@ -271,7 +273,7 @@ void MyFrame1::get_quote(wxCommandEvent& WXUNUSED(event))
 //	mywxtick->init(wxquote);
 //	mywxtick->start(ConsumerKey, ConsumerSecret, TokenKey, TokenSecret, URLBase, symbol);
 
-	wxticker* tickthread = new wxticker(this);
+	tickthread = new wxticker(this);
 	//tickthread->init(wxquote); //pointer to quote object
 	tickthread->start(ConsumerKey, ConsumerSecret, TokenKey, TokenSecret, URLBase, symbol_list);
 
@@ -291,7 +293,16 @@ void MyFrame1::get_quote(wxCommandEvent& WXUNUSED(event))
 
     }
 
-
+//	symbols["MSTR"]->last(2.3);
+//	symbols["MSTR"]->date("12/13/14");
+//	symbols["MSTR"]->time("10:57");
+//	symbols["MSTR"]->save("trade");
+//	symbols["MSTR"]->date("12/14/14");
+//	symbols["MSTR"]->save("trade");
+//	symbols["MSTR"]->time("11:02.1");
+//	symbols["ORCL"]->bid(2.3);
+//	symbols["ORCL"]->ask(2.3);
+//	symbols["ORCL"]->save("quote");
 }
 
 void MyFrame1::onQuoteUpdate(wxCommandEvent& evt)	{
@@ -405,3 +416,22 @@ void MyFrame1::onQuoteUpdate(wxCommandEvent& evt)	{
 
 
 }
+
+MyFrame1::~MyFrame1()	{
+
+
+    std::map<std::string, quote* > ::iterator iter;
+
+    for (iter = symbols.begin(); iter != symbols.end(); ++iter) {
+    	quote* symbol_ptr;
+    	symbol_ptr=iter->second;
+    	delete symbol_ptr;
+
+       //....
+       // Make sure you don't modify table here or the iterators will not work as you expect
+    }
+    tickthread->Delete();
+    delete tickthread;
+
+}
+

@@ -3,10 +3,11 @@
 #define QUOTE_H
 
 #include <string>
+#include <sqlite3.h>
 
 class quote {
 public:
-	quote(std::string symbol, int order_num);
+	quote(std::string symbol, int order_num, std::string db_connection);
 	~quote();
 	void last( double last_value);
 	void bid( double bid_value);
@@ -28,6 +29,11 @@ private:
 	int _order_num;
 	std::string _date;
 	std::string _time;
+
+	sqlite3 *db;
+	char *zErrMsg;
+	sqlite3_stmt *insert_stmt;
+
 };
 
 #endif // quote_h

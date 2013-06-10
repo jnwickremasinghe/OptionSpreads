@@ -5,9 +5,9 @@
 #include <map>
 // begin wxGlade: ::dependencies
 #include <wx/grid.h>
-#include "ticker.hpp"
 #include "wxticker.hpp"
 #include "quote.hpp"
+#include <sqlite3.h>
 //#include <boost/shared_ptr.hpp>
 // end wxGlade
 
@@ -27,7 +27,7 @@
 #ifndef OPTION_H
 #define OPTION_H
 
-const std::string config_file="/home/joseph/workspace2/OptionSpreads/keys.txt";
+const std::string config_file="./keys.txt";
 
 
 // begin wxGlade: ::extracode
@@ -40,6 +40,7 @@ public:
     // end wxGlade
 
     MyFrame1(wxWindow* parent, int id, const wxString& title, const wxPoint& pos=wxDefaultPosition, const wxSize& size=wxDefaultSize, long style=wxDEFAULT_FRAME_STYLE);
+    ~MyFrame1();
     void OnQuit(wxCommandEvent & event);
     void onQuoteUpdate(wxCommandEvent & event);
 
@@ -60,7 +61,7 @@ private:
 
 
     std::map <std::string, quote* > symbols;
-
+    wxticker* tickthread;
 protected:
     // begin wxGlade: MyFrame1::attributes
     wxMenuBar* frame_1_menubar;
@@ -68,7 +69,10 @@ protected:
     wxStaticText* label_2;
     wxStaticText* label_3;
     wxStaticText* label_4;
+    wxStaticText* label_4a;
+    wxStaticText* label_4b;
     wxStaticText* label_5;
+    wxStaticText* label_6;
 
     wxButton* wxButtonOK;
 
@@ -76,9 +80,13 @@ protected:
     wxTextCtrl* txtctrlConsumerSecret;
     wxTextCtrl* txtctrlTokenKey;
     wxTextCtrl* txtctrlTokenSecret;
-    wxTextCtrl* txtctrlURI;
+    wxTextCtrl* txtctrlDBPath;
+    wxTextCtrl* txtctrlURL;
+    wxTextCtrl* txtctrlOption_Symbols;
+    wxTextCtrl* txtctrlSymbols;
     wxGrid* grid_1;
     // end wxGlade
+
 }; // wxGlade: end class
 
 
