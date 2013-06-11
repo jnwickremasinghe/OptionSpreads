@@ -12,7 +12,6 @@ using namespace tinyxml2;
 using namespace std;
 
 static std::string buffer;
-static float last_tick;
 static std::string symbol;
 static std::string timestamp;
 
@@ -25,12 +24,6 @@ wxticker::wxticker(wxFrame* parent)	{
 void wxticker::init(quote* quote_ptr)	{
 
 	std::string symbol;
-
-	//initialize callback point.
-//	that_quote=(void*) quote_ptr;
-//	symbol = quote_ptr->symbol();
-//    m_Thread = boost::thread(&wxticker::last, this, symbol);
-	//start(c_key, c_secret, t_key, t_secret, uri, symbol_list);
 
 };
 
@@ -95,72 +88,14 @@ int wxticker::writer(char *data, size_t size, size_t nmemb,
 
 			wxCommandEvent event( wxEVT_COMMAND_TEXT_UPDATED, QUOTE_CALLBACK);
 			event.SetString(mystring);  // pass back the XML snippet
-//			m_parent->GetEventHandler()->AddPendingEvent( event );
 			myself->GetEventHandler()->AddPendingEvent( event );
-
 			buffer->clear();
 
-//			xmlvalue= xml_handle.FirstChildElement("quote").FirstChildElement("symbol").ToElement();
-//			if (xmlvalue!=0)	{
-//				symbol=xmlvalue->GetText();
-//			}
-//			xmlvalue= xml_handle.FirstChildElement("quote").FirstChildElement("bid").ToElement();
-//			if (xmlvalue!=0)	{
-//				std::stringstream strValue;
-//
-//				strValue << (xmlvalue->GetText());
-//				strValue >> bid;
-//			}
-//
-//			xmlvalue= xml_handle.FirstChildElement("quote").FirstChildElement("ask").ToElement();
-//			if (xmlvalue!=0)	{
-//				std::stringstream strValue;
-//
-//				strValue << (xmlvalue->GetText());
-//				strValue >> ask;
-//			}
-//
-//			xmlvalue= xml_handle.FirstChildElement("quote").FirstChildElement("timestamp").ToElement();
-//			if (xmlvalue!=0)	{
-//				timestamp=xmlvalue->GetText();
-//			}
 
-
-//			myself->ask(ask);
-//			myself->bid(bid);
-			//cout << "Time: " <<  timestamp << " Symbol: " << symbol << " Bid: " << bid << " Ask: " << ask << endl;
 		}
-
-
-
-//		if (ElementName=="trade")	{
-//			xmlvalue= xml_handle.FirstChildElement("trade").FirstChildElement("symbol").ToElement();
-//			if (xmlvalue!=0)	{
-//				symbol=xmlvalue->GetText();
-//			}
-//			xmlvalue= xml_handle.FirstChildElement("trade").FirstChildElement("last").ToElement();
-//			if (xmlvalue!=0)	{
-//				std::stringstream strValue;
-//
-//				strValue << (xmlvalue->GetText());
-//				strValue >> last_tick;
-//			}
-//
-//			xmlvalue= xml_handle.FirstChildElement("trade").FirstChildElement("datetime").ToElement();
-//			if (xmlvalue!=0)	{
-//				timestamp=xmlvalue->GetText();
-//			}
-//			int last_int;
-//
-//			last_int=int(last_tick*100);
-//
-//			wxCommandEvent event( wxEVT_COMMAND_TEXT_UPDATED, QUOTE_CALLBACK);
-//			event.SetInt(last_int);  // pass some data along the event, a number in this case
-//			m_parent->GetEventHandler()->AddPendingEvent( event );
-//			myself->GetEventHandler()->AddPendingEvent( event );
-//
-//			//cout << "Time: " <<  timestamp << " Symbol: "<< symbol << " Trade: " << last_tick << " Ask: " << ask << endl;
-//		}
+		else {
+			cout << "Unknown Response: " << *buffer << endl;
+		}
 
 
 	}
@@ -207,7 +142,7 @@ float wxticker::last(std::string symbol) {
 	cout << "Error: [" << result << "] - " << errorBuffer << endl;
 	}
 
-	return last_tick;
+	return 0;
 
 
 

@@ -240,13 +240,10 @@ void MyFrame1::get_quote(wxCommandEvent& WXUNUSED(event))
 
 		}
 		if (!symbol.empty())	{
-			//boost::shared_ptr<quote> mysymbol(symbol);
+
 			wxquote = new quote(symbol,symbol_order, db_connection);
 			symbols[wxquote->symbol()]=wxquote;
 			grid_1->SetCellValue(symbol_order-1,1,wxString::FromAscii(symbol.c_str()));
-//			quote mysymbol(symbol);
-//			quote mysymbol(symbol);
-//			symbol_map[symbol]=mysymbol;
 			symbol_order++;
 
 		}
@@ -254,27 +251,8 @@ void MyFrame1::get_quote(wxCommandEvent& WXUNUSED(event))
 	} while (comma_position!=string::npos);
 
 
-//	std::map<std::string, quote*>::iterator iter;
-//	for (iter = symbols.begin(); iter != symbols.end(); ++iter) {
-//		   cout << iter->first << "=" << iter->second << endl;; //Not a method call
-//
-//		}
-
-//	std_quote = new quote(symbol);
-//	mytick.init(std_quote);
-
-	//for now, just send first symbol into start(), not symbol_list
-	//mytick.start(ConsumerKey, ConsumerSecret, TokenKey, TokenSecret, URLBase, symbol);
-
-//	mywxtick= new wxticker(this);
-
-//	cout << "Going with:" <<wxquote->symbol() << endl;
-
-//	mywxtick->init(wxquote);
-//	mywxtick->start(ConsumerKey, ConsumerSecret, TokenKey, TokenSecret, URLBase, symbol);
 
 	tickthread = new wxticker(this);
-	//tickthread->init(wxquote); //pointer to quote object
 	tickthread->start(ConsumerKey, ConsumerSecret, TokenKey, TokenSecret, URLBase, symbol_list);
 
 	wxThreadError err = tickthread->Create();
@@ -293,16 +271,6 @@ void MyFrame1::get_quote(wxCommandEvent& WXUNUSED(event))
 
     }
 
-//	symbols["MSTR"]->last(2.3);
-//	symbols["MSTR"]->date("12/13/14");
-//	symbols["MSTR"]->time("10:57");
-//	symbols["MSTR"]->save("trade");
-//	symbols["MSTR"]->date("12/14/14");
-//	symbols["MSTR"]->save("trade");
-//	symbols["MSTR"]->time("11:02.1");
-//	symbols["ORCL"]->bid(2.3);
-//	symbols["ORCL"]->ask(2.3);
-//	symbols["ORCL"]->save("quote");
 }
 
 void MyFrame1::onQuoteUpdate(wxCommandEvent& evt)	{
@@ -323,6 +291,7 @@ void MyFrame1::onQuoteUpdate(wxCommandEvent& evt)	{
 	float ask;
 	std::string symbol;
 	std::string timestamp;
+	quote* symbol_ptr;
 
 	if (ElementName=="quote" )	{
 
@@ -358,18 +327,22 @@ void MyFrame1::onQuoteUpdate(wxCommandEvent& evt)	{
 		quote_date=timestamp.substr(0,split_pos);
 		quote_time=timestamp.substr(split_pos+1,string::npos);
 
-		symbols[symbol]->ask(ask);
-		symbols[symbol]->bid(bid);
-		symbols[symbol]->date(quote_date);
-		symbols[symbol]->time(quote_time);
-		symbols[symbol]->save("quote");
+		symbol_ptr=symbols[symbol];
+		if (symbol_ptr)	{
+			symbols[symbol]->ask(ask);
+			symbols[symbol]->bid(bid);
+			symbols[symbol]->date(quote_date);
+			symbols[symbol]->time(quote_time);
+			symbols[symbol]->save("quote");
 
-		int row_num=symbols[symbol]->order()-1;
-		grid_1->SetCellValue(row_num,1,wxString::FromAscii(symbol.c_str()));
-		grid_1->SetCellValue(row_num,2,wxString::Format(wxT("%f"),bid));
-		grid_1->SetCellValue(row_num,3,wxString::Format(wxT("%f"),ask));
-//		grid_1->SetCellValue(row_num,5,wxString::FromAscii(quote_time.c_str()));
-
+			int row_num=symbols[symbol]->order()-1;
+			grid_1->SetCellValue(row_num,1,wxString::FromAscii(symbol.c_str()));
+			grid_1->SetCellValue(row_num,2,wxString::Format(wxT("%f"),bid));
+			grid_1->SetCellValue(row_num,3,wxString::Format(wxT("%f"),ask));
+	//		grid_1->SetCellValue(row_num,5,wxString::FromAscii(quote_time.c_str()));
+		} else	{
+			std::cerr <<"Unknown symbol in quote: " << symbol << endl;
+		}
 	}
 
 
@@ -399,19 +372,24 @@ void MyFrame1::onQuoteUpdate(wxCommandEvent& evt)	{
 		quote_date=timestamp.substr(0,split_pos);
 		quote_time=timestamp.substr(split_pos+1,string::npos);
 
-		symbols[symbol]->ask(ask);
-		symbols[symbol]->bid(bid);
-		symbols[symbol]->last(last);
-		symbols[symbol]->date(quote_date);
-		symbols[symbol]->time(quote_time);
-		symbols[symbol]->save("trade");
+		symbol_ptr=symbols[symbol];
+		if (symbol_ptr)	{
+			symbols[symbol]->ask(ask);
+			symbols[symbol]->bid(bid);
+			symbols[symbol]->last(last);
+			symbols[symbol]->date(quote_date);
+			symbols[symbol]->time(quote_time);
+			symbols[symbol]->save("trade");
 
-		int row_num=symbols[symbol]->order()-1;
-		grid_1->SetCellValue(row_num,1,wxString::FromAscii(symbol.c_str()));
-		grid_1->SetCellValue(row_num,2,wxString::Format(wxT("%f"),bid));
-		grid_1->SetCellValue(row_num,3,wxString::Format(wxT("%f"),ask));
-		grid_1->SetCellValue(row_num,4,wxString::Format(wxT("%f"),last));
-		grid_1->SetCellValue(row_num,5,wxString::FromAscii(quote_time.c_str()));
+			int row_num=symbols[symbol]->order()-1;
+			grid_1->SetCellValue(row_num,1,wxString::FromAscii(symbol.c_str()));
+			grid_1->SetCellValue(row_num,2,wxString::Format(wxT("%f"),bid));
+			grid_1->SetCellValue(row_num,3,wxString::Format(wxT("%f"),ask));
+			grid_1->SetCellValue(row_num,4,wxString::Format(wxT("%f"),last));
+			grid_1->SetCellValue(row_num,5,wxString::FromAscii(quote_time.c_str()));
+		} else {
+			std::cerr <<"Unknown symbol in trade: " << symbol << endl;
+		}
 	}
 
 
@@ -427,8 +405,6 @@ MyFrame1::~MyFrame1()	{
     	symbol_ptr=iter->second;
     	delete symbol_ptr;
 
-       //....
-       // Make sure you don't modify table here or the iterators will not work as you expect
     }
     tickthread->Delete();
     delete tickthread;
