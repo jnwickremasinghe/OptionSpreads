@@ -7,6 +7,7 @@
 #include "wxticker.hpp"
 
 const int QUOTE_CALLBACK = 100000;
+const int ERR_CALLBACK = 200000;
 
 using namespace tinyxml2;
 using namespace std;
@@ -137,9 +138,15 @@ float wxticker::last(std::string symbol) {
 	}
 	buffer.clear();
 	result = curl_easy_perform(curl);
-	if (result != CURLE_OK)
-	{
-	cout << "Error: [" << result << "] - " << errorBuffer << endl;
+	if (result != CURLE_OK) {
+		//error in curl - need to notify main thread
+		wxString errorstring(errorBuffer,wxConvUTF8);
+		wxCommandEvent event( wxEVT_COMMAND_TEXT_UPDATED, ERR_CALLBACK);
+		event.SetString(errorstring);  // pass back the error message
+		event.SetInt(result); //pass back error message
+		wxFrame* myself = (wxFrame*) that_quote;
+		myself->GetEventHandler()->AddPendingEvent( event );
+		cout << "Error: [" << result << "] - " << errorBuffer << endl;
 	}
 
 	return 0;

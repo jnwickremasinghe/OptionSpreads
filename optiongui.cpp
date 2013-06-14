@@ -11,7 +11,7 @@
 #include <sstream>
 
 
-const int QUOTE_CALLBACK = 100000;
+
 
 using namespace std;
 using namespace tinyxml2;
@@ -91,7 +91,7 @@ MyFrame1::MyFrame1(wxWindow* parent, int id, const wxString& title, const wxPoin
     Connect(wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MyFrame1::OnQuit));
     Connect(BUTTON_GetQuote,wxEVT_COMMAND_BUTTON_CLICKED , wxCommandEventHandler(MyFrame1::get_quote));
     Connect(QUOTE_CALLBACK, wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(MyFrame1::onQuoteUpdate));
-
+    Connect(TICKER_INIT, wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(MyFrame1::OnCurlError));
     set_properties();
     do_layout();
     // end wxGlade
@@ -109,14 +109,16 @@ void MyFrame1::set_properties()
 {
     // begin wxGlade: MyFrame1::set_properties
     SetTitle(wxT("Option Spreads"));
-    grid_1->CreateGrid(10, 6);
+    grid_1->CreateGrid(15, 7);
     grid_1->SetColLabelValue(0, wxT("Strike"));
     grid_1->SetColLabelValue(1, wxT("Symbol"));
     grid_1->SetColLabelValue(2, wxT("Bid"));
     grid_1->SetColLabelValue(3, wxT("Ask"));
     grid_1->SetColLabelValue(4, wxT("Last"));
-    grid_1->SetColLabelValue(5, wxT("Date time"));
-    grid_1->SetColSize(5,120);
+    grid_1->SetColLabelValue(5, wxT("% Chg"));
+    grid_1->SetColLabelValue(6, wxT("Date time"));
+    grid_1->SetColSize(6,120);
+    grid_1->SetColSize(1,120);
     // end wxGlade
 }
 
@@ -185,44 +187,11 @@ void MyFrame1::do_layout()
 void MyFrame1::get_quote(wxCommandEvent& WXUNUSED(event))
 {
 
-
-	std::string URLBase; // = "https://api.tradeking.com/v1/market/ext/quotes.xml?symbols=";
-	URLBase=(txtctrlURL->GetValue()).mb_str();
-
-
-	//get Consumer Key as ASCII const char*
-	wxString ctrl_value=txtctrlConsumerKey->GetValue();
-	std::string ConsumerKey;
-	ConsumerKey = ctrl_value.mb_str();
-
-
-	//get Consumer Secret as ASCII const char*
-	ctrl_value=txtctrlConsumerSecret->GetValue();
-	std::string ConsumerSecret;
-	ConsumerSecret = ctrl_value.mb_str();
-
-	//get Token Key as ASCII const char*
-	ctrl_value=txtctrlTokenKey->GetValue();
-	std::string TokenKey;
-	TokenKey = ctrl_value.mb_str();
-
-	//get Token Secret as ASCII const char*
-	ctrl_value=txtctrlTokenSecret->GetValue();
-	std::string TokenSecret;
-	TokenSecret = ctrl_value.mb_str();
-
-	//get URI as an ASCII const char*
-	ctrl_value=txtctrlSymbols->GetValue();
-
-	std::string symbol_list;
-	symbol_list=ctrl_value.mb_str();
-
-	std::string db_connection;
-	ctrl_value=txtctrlDBPath->GetValue();
-	db_connection=ctrl_value.mb_str();
-
 	//create a quote object for each inputted symbol
-	std::string symbol_temp=symbol_list;
+	wxString ctrl_value;
+	ctrl_value=txtctrlSymbols->GetValue();
+	std::string symbol_temp;
+	symbol_temp=ctrl_value.mb_str();
 	std::string symbol;
 	size_t comma_position;
 	//comma_position=symbol_list.find(',',comma_position);
@@ -241,6 +210,12 @@ void MyFrame1::get_quote(wxCommandEvent& WXUNUSED(event))
 		}
 		if (!symbol.empty())	{
 
+			std::string db_connection;
+
+
+			ctrl_value=txtctrlDBPath->GetValue();
+			db_connection=ctrl_value.mb_str();
+
 			wxquote = new quote(symbol,symbol_order, db_connection);
 			symbols[wxquote->symbol()]=wxquote;
 			grid_1->SetCellValue(symbol_order-1,1,wxString::FromAscii(symbol.c_str()));
@@ -251,25 +226,10 @@ void MyFrame1::get_quote(wxCommandEvent& WXUNUSED(event))
 	} while (comma_position!=string::npos);
 
 
-
-	tickthread = new wxticker(this);
-	tickthread->start(ConsumerKey, ConsumerSecret, TokenKey, TokenSecret, URLBase, symbol_list);
-
-	wxThreadError err = tickthread->Create();
-
-    if (err != wxTHREAD_NO_ERROR)
-    {
-        wxMessageBox( _("Couldn't create thread!") );
-
-    }
-
-    err = tickthread->Run();
-
-    if (err != wxTHREAD_NO_ERROR)
-    {
-        wxMessageBox( _("Couldn't run thread!") );
-
-    }
+	wxCommandEvent event(wxEVT_COMMAND_TEXT_UPDATED, TICKER_INIT);
+	event.SetString(wxT("start"));
+	event.SetInt(TICKER_INIT);
+	this->GetEventHandler()->AddPendingEvent(event);
 
 }
 
@@ -374,24 +334,103 @@ void MyFrame1::onQuoteUpdate(wxCommandEvent& evt)	{
 
 		symbol_ptr=symbols[symbol];
 		if (symbol_ptr)	{
-			symbols[symbol]->ask(ask);
-			symbols[symbol]->bid(bid);
 			symbols[symbol]->last(last);
 			symbols[symbol]->date(quote_date);
 			symbols[symbol]->time(quote_time);
 			symbols[symbol]->save("trade");
+			double pct_chg = symbols[symbol]->pct_chg();
+
 
 			int row_num=symbols[symbol]->order()-1;
 			grid_1->SetCellValue(row_num,1,wxString::FromAscii(symbol.c_str()));
 			grid_1->SetCellValue(row_num,2,wxString::Format(wxT("%f"),bid));
 			grid_1->SetCellValue(row_num,3,wxString::Format(wxT("%f"),ask));
 			grid_1->SetCellValue(row_num,4,wxString::Format(wxT("%f"),last));
-			grid_1->SetCellValue(row_num,5,wxString::FromAscii(quote_time.c_str()));
+			grid_1->SetCellValue(row_num,5,wxString::Format(wxT("%f"),pct_chg));
+			grid_1->SetCellValue(row_num,6,wxString::FromAscii(quote_time.c_str()));
+
 		} else {
 			std::cerr <<"Unknown symbol in trade: " << symbol << endl;
 		}
 	}
 
+
+}
+
+void MyFrame1::OnCurlError(wxCommandEvent& evt)	{
+
+	std::string message = std::string(evt.GetString().mb_str());
+	int call_num=evt.GetInt();
+
+	if (call_num==TICKER_INIT && message=="start")	{
+		//initial call to start thread
+
+		std::string URLBase; // = "https://api.tradeking.com/v1/market/ext/quotes.xml?symbols=";
+		URLBase=(txtctrlURL->GetValue()).mb_str();
+
+
+		//get Consumer Key as ASCII const char*
+		wxString ctrl_value=txtctrlConsumerKey->GetValue();
+		std::string ConsumerKey;
+		ConsumerKey = ctrl_value.mb_str();
+
+
+		//get Consumer Secret as ASCII const char*
+		ctrl_value=txtctrlConsumerSecret->GetValue();
+		std::string ConsumerSecret;
+		ConsumerSecret = ctrl_value.mb_str();
+
+		//get Token Key as ASCII const char*
+		ctrl_value=txtctrlTokenKey->GetValue();
+		std::string TokenKey;
+		TokenKey = ctrl_value.mb_str();
+
+		//get Token Secret as ASCII const char*
+		ctrl_value=txtctrlTokenSecret->GetValue();
+		std::string TokenSecret;
+		TokenSecret = ctrl_value.mb_str();
+
+		//get URI as an ASCII const char*
+		ctrl_value=txtctrlSymbols->GetValue();
+
+		std::string symbol_list;
+		symbol_list=ctrl_value.mb_str();
+
+		std::string db_connection;
+		ctrl_value=txtctrlDBPath->GetValue();
+		db_connection=ctrl_value.mb_str();
+
+
+
+
+		tickthread = new wxticker(this);
+		tickthread->start(ConsumerKey, ConsumerSecret, TokenKey, TokenSecret, URLBase, symbol_list);
+
+		wxThreadError err = tickthread->Create();
+
+	    if (err != wxTHREAD_NO_ERROR)
+	    {
+	        wxMessageBox( _("Couldn't create thread!") );
+
+	    }
+
+	    err = tickthread->Run();
+
+	    if (err != wxTHREAD_NO_ERROR)
+	    {
+	        wxMessageBox( _("Couldn't run thread!") );
+
+	    }
+
+
+
+
+	} else	{
+		//callback after an error
+		std::cout <<"Curl error:" <<  message <<endl;
+		std::cout << "Error #"<< call_num  <<endl;
+		std::cout <<"Here's where we'd fire off wxticker again..." <<endl;
+	}
 
 }
 

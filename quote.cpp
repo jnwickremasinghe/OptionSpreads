@@ -32,11 +32,17 @@ void quote::bid(double bid)	{
 }
 
 void quote::last(double trade)	{
+	_pct_chg= (trade-_prior_trade)/_prior_trade;
+	_prior_trade=_trade;
 	_trade=trade;
 }
 
 std::string quote::symbol(void)	{
 	return _symbol;
+}
+
+double quote::pct_chg(void)	{
+	return _pct_chg;
 }
 
 
@@ -60,7 +66,7 @@ int quote::save(std::string tick_type)	{
 			ss << "insert into quote (date,time,symbol,type,value) values";
 			ss << "('" << _date <<  "','" << _time << "','" << _symbol << "','last'," << _trade << ")";
 			std::string quote_sql=ss.str();
-			std::cout << quote_sql << std::endl;
+//			std::cout << quote_sql << std::endl;
 			int retval = sqlite3_exec(db, quote_sql.c_str(), NULL, 0, &zErrMsg);
 			if (retval){
 				std::cerr << "Error writing to db: " << zErrMsg << std::endl;
@@ -72,7 +78,7 @@ int quote::save(std::string tick_type)	{
 			ss << "insert into quote (date,time,symbol,type,value) values";
 			ss << "('" << _date <<  "','" << _time << "','" << _symbol << "','bid'," << _bid << ")";
 			quote_sql=ss.str();
-			std::cout << quote_sql << std::endl;
+//			std::cout << quote_sql << std::endl;
 			retval = sqlite3_exec(db, quote_sql.c_str(), NULL, 0, &zErrMsg);
 			if (retval){
 				std::cerr << "Error writing to db: " << zErrMsg << std::endl;
@@ -81,7 +87,7 @@ int quote::save(std::string tick_type)	{
 			ss << "insert into quote (date,time,symbol,type,value) values";
 			ss << "('" << _date <<  "','" << _time << "','" << _symbol << "','ask'," << _ask << ")";
 			quote_sql=ss.str();
-			std::cout << quote_sql << std::endl;
+//			std::cout << quote_sql << std::endl;
 			retval = sqlite3_exec(db, quote_sql.c_str(), NULL, 0, &zErrMsg);
 			if (retval){
 				std::cerr << "Error writing to db: " << zErrMsg << std::endl;
