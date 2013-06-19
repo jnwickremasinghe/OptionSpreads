@@ -4,7 +4,7 @@
 #include <oauth.h>
 #include <sstream>
 #include "tinyxml2.h"
-#include "wxticker.hpp"
+#include "ticker.hpp"
 
 const int QUOTE_CALLBACK = 100000;
 
@@ -18,23 +18,8 @@ static std::string timestamp;
 wxticker::wxticker(wxFrame* parent)	{
 	m_parent=parent;
 	that_quote=(void*) parent;
-	cout <<"wxticker created" << endl;
+	cout <<"ticker created" << endl;
 }
-
-void wxticker::init(quote* quote_ptr)	{
-
-	std::string symbol;
-
-};
-
-wxThread::ExitCode wxticker::Entry()	{
-
-	last("test");
-
-	return 0;
-
-}
-
 
 void wxticker::start(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string symbol_list)	{
 
@@ -45,12 +30,6 @@ void wxticker::start(std::string c_key, std::string c_secret, std::string t_key,
 	url_base=uri;
 	symbols=symbol_list;
 
-}
-
-wxticker::~wxticker()	{
-	  // Always cleanup
-	curl_easy_cleanup(curl);
-	cout<< "wxticker destroyed" << endl;
 }
 
 // This is the writer call back function used by curl
@@ -100,7 +79,7 @@ int wxticker::writer(char *data, size_t size, size_t nmemb,
 
 	}
 	else {
-		cout <<"Incomplete payload..." << endl;
+		cout <<"Incomplete payload:" << *buffer << endl;
 	}
 
 
@@ -112,9 +91,7 @@ int wxticker::writer(char *data, size_t size, size_t nmemb,
   return result;
 }
 
-
-
-float wxticker::last(std::string symbol) {
+wxThread::ExitCode wxticker::Entry()	{
 
 	char *req_url = NULL;
 	std::string full_url=url_base+symbols;
@@ -144,6 +121,10 @@ float wxticker::last(std::string symbol) {
 
 	return 0;
 
+}
 
-
+wxticker::~wxticker()	{
+	  // Always cleanup
+	curl_easy_cleanup(curl);
+	cout<< "ticker destroyed" << endl;
 }
