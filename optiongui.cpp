@@ -383,8 +383,6 @@ void MyFrame1::onQuoteUpdate(wxCommandEvent& evt)	{
 
 			int row_num=symbols[symbol]->order()-1;
 			grid_1->SetCellValue(row_num,1,wxString::FromAscii(symbol.c_str()));
-			grid_1->SetCellValue(row_num,2,wxString::Format(wxT("%f"),bid));
-			grid_1->SetCellValue(row_num,3,wxString::Format(wxT("%f"),ask));
 			grid_1->SetCellValue(row_num,4,wxString::Format(wxT("%f"),last));
 			grid_1->SetCellValue(row_num,5,wxString::FromAscii(quote_time.c_str()));
 		} else {
