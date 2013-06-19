@@ -50,7 +50,7 @@
 </toolChain>
 </folderInfo>
 <sourceEntries>
-<entry excluding="ticker.hpp|ticker.cpp|async.hpp|async.cpp|libcurl_client.cpp|ssl_client.cpp|new/optiongui.cpp|new/optiongui.h|new/option.h|new/option.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+<entry excluding="async.hpp|async.cpp|libcurl_client.cpp|ssl_client.cpp|new/optiongui.cpp|new/optiongui.h|new/option.h|new/option.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 </sourceEntries>
 </configuration>
 </storageModule>
@@ -515,7 +515,7 @@
 </toolChain>
 </folderInfo>
 <sourceEntries>
-<entry excluding="ticker.hpp|ticker.cpp|async.hpp|async.cpp|libcurl_client.cpp|ssl_client.cpp|new/optiongui.cpp|new/optiongui.h|new/option.h|new/option.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+<entry excluding="async.hpp|async.cpp|libcurl_client.cpp|ssl_client.cpp|new/optiongui.cpp|new/optiongui.h|new/option.h|new/option.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 </sourceEntries>
 </configuration>
 </storageModule>
