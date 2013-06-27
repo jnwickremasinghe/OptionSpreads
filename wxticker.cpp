@@ -124,30 +124,40 @@ float wxticker::last(std::string symbol) {
 
 	std::string url_string(req_url);
 
-	curl = curl_easy_init();
-	if (curl)
-	{
-	  curl_easy_setopt(curl, CURLOPT_URL, url_string.c_str());
-	  // Now set up all of the curl options
-	  curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
-	  curl_easy_setopt(curl, CURLOPT_HEADER, 0);
-	  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
-	  curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
-	  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &wxticker::writer);
-	  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
+	for (int retry=0;retry<10;retry++)	{
+		curl = curl_easy_init();
+		if (curl)
+		{
+		  curl_easy_setopt(curl, CURLOPT_URL, url_string.c_str());
+		  // Now set up all of the curl options
+		  curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
+		  curl_easy_setopt(curl, CURLOPT_HEADER, 0);
+		  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+		  curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
+		  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &wxticker::writer);
+		  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
+		}
+		buffer.clear();
+
+
+		result = curl_easy_perform(curl);
+		if (result != CURLE_OK) {
+			//error in curl - need to notify main thread
+			wxString errorstring(errorBuffer,wxConvUTF8);
+			wxCommandEvent event( wxEVT_COMMAND_TEXT_UPDATED, ERR_CALLBACK);
+			event.SetString(errorstring);  // pass back the error message
+			event.SetInt(result); //pass back error message
+			wxFrame* myself = (wxFrame*) that_quote;
+			myself->GetEventHandler()->AddPendingEvent( event );
+			cout << "Error: [" << result << "] - " << errorBuffer << endl;
+			cout <<"Cleaning up curl" << endl;
+			curl_easy_cleanup(curl);
+			cout << "Waiting 10 seconds before retrying" << endl;
+			cout << "Retry #" << retry << endl;
+			sleep(10); //wait for 10 seconds - not portable!!
+		}
 	}
-	buffer.clear();
-	result = curl_easy_perform(curl);
-	if (result != CURLE_OK) {
-		//error in curl - need to notify main thread
-		wxString errorstring(errorBuffer,wxConvUTF8);
-		wxCommandEvent event( wxEVT_COMMAND_TEXT_UPDATED, ERR_CALLBACK);
-		event.SetString(errorstring);  // pass back the error message
-		event.SetInt(result); //pass back error message
-		wxFrame* myself = (wxFrame*) that_quote;
-		myself->GetEventHandler()->AddPendingEvent( event );
-		cout << "Error: [" << result << "] - " << errorBuffer << endl;
-	}
+
 
 	return 0;
 
