@@ -5,7 +5,7 @@
 #include <map>
 // begin wxGlade: ::dependencies
 #include <wx/grid.h>
-#include "wxticker.hpp"
+#include "ticker.hpp"
 #include "quote.hpp"
 #include <sqlite3.h>
 //#include <boost/shared_ptr.hpp>
@@ -49,7 +49,7 @@ public:
     void OnCurlError(wxCommandEvent& event);
 
     quote* std_quote;
-    wxticker* mywxtick;
+    ticker* mywxtick;
     quote* wxquote;
 private:
     // begin wxGlade: MyFrame1::methods
@@ -65,7 +65,7 @@ private:
 
 
     std::map <std::string, quote* > symbols;
-    wxticker* tickthread;
+    ticker* tickthread;
 protected:
     // begin wxGlade: MyFrame1::attributes
     wxMenuBar* frame_1_menubar;

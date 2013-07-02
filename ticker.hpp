@@ -15,13 +15,13 @@
 
 static void* that_quote;
 
-class wxticker : public wxThread {
+class ticker : public wxThread {
 
 public:
-    wxticker(wxFrame* parent);
+    ticker(wxFrame* parent);
 	void init(quote* quote_ptr);
 	void start(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string symbol_list);
-	~wxticker(void);
+	~ticker(void);
 	float last(std::string);
 	void stop(void);
 	wxFrame* m_parent;

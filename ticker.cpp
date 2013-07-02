@@ -4,7 +4,7 @@
 #include <oauth.h>
 #include <sstream>
 #include "tinyxml2.h"
-#include "wxticker.hpp"
+#include "ticker.hpp"
 
 const int QUOTE_CALLBACK = 100000;
 const int ERR_CALLBACK = 200000;
@@ -16,19 +16,19 @@ static std::string buffer;
 static std::string symbol;
 static std::string timestamp;
 
-wxticker::wxticker(wxFrame* parent)	{
+ticker::ticker(wxFrame* parent)	{
 	m_parent=parent;
 	that_quote=(void*) parent;
 	cout <<"wxticker created" << endl;
 }
 
-void wxticker::init(quote* quote_ptr)	{
+void ticker::init(quote* quote_ptr)	{
 
 	std::string symbol;
 
 };
 
-wxThread::ExitCode wxticker::Entry()	{
+wxThread::ExitCode ticker::Entry()	{
 
 	last("test");
 
@@ -37,7 +37,7 @@ wxThread::ExitCode wxticker::Entry()	{
 }
 
 
-void wxticker::start(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string symbol_list)	{
+void ticker::start(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string symbol_list)	{
 
 	cons_key=c_key;
 	cons_secret=c_secret;
@@ -48,14 +48,14 @@ void wxticker::start(std::string c_key, std::string c_secret, std::string t_key,
 
 }
 
-wxticker::~wxticker()	{
+ticker::~ticker()	{
 	  // Always cleanup
 	curl_easy_cleanup(curl);
 	cout<< "wxticker destroyed" << endl;
 }
 
 // This is the writer call back function used by curl
-int wxticker::writer(char *data, size_t size, size_t nmemb,
+int ticker::writer(char *data, size_t size, size_t nmemb,
                   std::string *buffer)
 {
   // What we will return
@@ -115,7 +115,7 @@ int wxticker::writer(char *data, size_t size, size_t nmemb,
 
 
 
-float wxticker::last(std::string symbol) {
+float ticker::last(std::string symbol) {
 
 	char *req_url = NULL;
 	std::string full_url=url_base+symbols;
@@ -134,7 +134,7 @@ float wxticker::last(std::string symbol) {
 		  curl_easy_setopt(curl, CURLOPT_HEADER, 0);
 		  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
 		  curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
-		  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &wxticker::writer);
+		  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &ticker::writer);
 		  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
 		}
 		buffer.clear();
