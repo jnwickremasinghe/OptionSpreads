@@ -14,6 +14,8 @@ public:
 	void ask (double ask_value);
 	std::string symbol(void);
 	double last(void);
+	double pct_chg(void);
+
 	int order(void);
 	void date(std::string date_value);
 	void time(std::string time_value);
@@ -23,6 +25,8 @@ public:
 private:
 
 	double _trade;
+	double _prior_trade;
+	double _pct_chg;
 	double _ask;
 	double _bid;
 	std::string _symbol;

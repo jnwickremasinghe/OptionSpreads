@@ -33,11 +33,17 @@ void quote::bid(double bid)	{
 }
 
 void quote::last(double trade)	{
+	_pct_chg= (trade-_prior_trade)/_prior_trade;
+	_prior_trade=_trade;
 	_trade=trade;
 }
 
 std::string quote::symbol(void)	{
 	return _symbol;
+}
+
+double quote::pct_chg(void)	{
+	return _pct_chg;
 }
 
 

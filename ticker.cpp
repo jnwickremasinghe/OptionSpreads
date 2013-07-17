@@ -7,6 +7,7 @@
 #include "ticker.hpp"
 
 const int QUOTE_CALLBACK = 100000;
+const int ERR_CALLBACK = 200000;
 
 using namespace tinyxml2;
 using namespace std;
@@ -15,13 +16,20 @@ static std::string buffer;
 static std::string symbol;
 static std::string timestamp;
 
-wxticker::wxticker(wxFrame* parent)	{
+ticker::ticker(wxFrame* parent)	{
 	m_parent=parent;
 	that_quote=(void*) parent;
 	cout <<"ticker created" << endl;
 }
 
-void wxticker::start(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string symbol_list)	{
+void ticker::init(quote* quote_ptr)	{
+
+	std::string symbol;
+
+};
+
+
+void ticker::start(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string symbol_list)	{
 
 	cons_key=c_key;
 	cons_secret=c_secret;
@@ -32,8 +40,10 @@ void wxticker::start(std::string c_key, std::string c_secret, std::string t_key,
 
 }
 
+
+
 // This is the writer call back function used by curl
-int wxticker::writer(char *data, size_t size, size_t nmemb,
+int ticker::writer(char *data, size_t size, size_t nmemb,
                   std::string *buffer)
 {
   // What we will return
@@ -79,7 +89,7 @@ int wxticker::writer(char *data, size_t size, size_t nmemb,
 
 	}
 	else {
-		cout <<"Incomplete payload:" << *buffer << endl;
+		cout <<"Incomplete payload..." << endl;
 	}
 
 
@@ -91,7 +101,7 @@ int wxticker::writer(char *data, size_t size, size_t nmemb,
   return result;
 }
 
-wxThread::ExitCode wxticker::Entry()	{
+wxThread::ExitCode ticker::Entry()	{
 
 	char *req_url = NULL;
 	std::string full_url=url_base+symbols;
@@ -100,30 +110,46 @@ wxThread::ExitCode wxticker::Entry()	{
 
 	std::string url_string(req_url);
 
-	curl = curl_easy_init();
-	if (curl)
-	{
-	  curl_easy_setopt(curl, CURLOPT_URL, url_string.c_str());
-	  // Now set up all of the curl options
-	  curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
-	  curl_easy_setopt(curl, CURLOPT_HEADER, 0);
-	  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
-	  curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
-	  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &wxticker::writer);
-	  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
+	for (int retry=0;retry<10;retry++)	{
+		curl = curl_easy_init();
+		if (curl)
+		{
+		  curl_easy_setopt(curl, CURLOPT_URL, url_string.c_str());
+		  // Now set up all of the curl options
+		  curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
+		  curl_easy_setopt(curl, CURLOPT_HEADER, 0);
+		  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+		  curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
+		  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &ticker::writer);
+		  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
+		}
+		buffer.clear();
+
+
+		result = curl_easy_perform(curl);
+		if (result != CURLE_OK) {
+			//error in curl - need to notify main thread
+			wxString errorstring(errorBuffer,wxConvUTF8);
+			wxCommandEvent event( wxEVT_COMMAND_TEXT_UPDATED, ERR_CALLBACK);
+			event.SetString(errorstring);  // pass back the error message
+			event.SetInt(result); //pass back error message
+			wxFrame* myself = (wxFrame*) that_quote;
+			myself->GetEventHandler()->AddPendingEvent( event );
+			cout << "Error: [" << result << "] - " << errorBuffer << endl;
+			cout <<"Cleaning up curl" << endl;
+			curl_easy_cleanup(curl);
+			cout << "Waiting 10 seconds before retrying" << endl;
+			cout << "Retry #" << retry << endl;
+			sleep(10); //wait for 10 seconds - not portable!!
+		}
 	}
-	buffer.clear();
-	result = curl_easy_perform(curl);
-	if (result != CURLE_OK)
-	{
-	cout << "Error: [" << result << "] - " << errorBuffer << endl;
-	}
+
 
 	return 0;
 
 }
 
-wxticker::~wxticker()	{
+ticker::~ticker()	{
 	  // Always cleanup
 	curl_easy_cleanup(curl);
 	cout<< "ticker destroyed" << endl;

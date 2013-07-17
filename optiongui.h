@@ -28,6 +28,9 @@
 #define OPTION_H
 
 const std::string config_file="./keys.txt";
+const int TICKER_INIT = 000000;
+const int QUOTE_CALLBACK = 100000;
+const int ERR_CALLBACK = 200000;
 
 
 // begin wxGlade: ::extracode
@@ -43,9 +46,10 @@ public:
     ~MyFrame1();
     void OnQuit(wxCommandEvent & event);
     void onQuoteUpdate(wxCommandEvent & event);
+    void OnCurlError(wxCommandEvent& event);
 
     quote* std_quote;
-    wxticker* mywxtick;
+    ticker* mywxtick;
     quote* wxquote;
 private:
     // begin wxGlade: MyFrame1::methods
@@ -61,7 +65,7 @@ private:
 
 
     std::map <std::string, quote* > symbols;
-    wxticker* tickthread;
+    ticker* tickthread;
 protected:
     // begin wxGlade: MyFrame1::attributes
     wxMenuBar* frame_1_menubar;
