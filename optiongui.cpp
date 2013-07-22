@@ -16,10 +16,10 @@
 using namespace std;
 using namespace tinyxml2;
 
-MyFrame1::MyFrame1(wxWindow* parent, int id, const wxString& title, const wxPoint& pos, const wxSize& size, long style):
+MainFrame::MainFrame(wxWindow* parent, int id, const wxString& title, const wxPoint& pos, const wxSize& size, long style):
     wxFrame(parent, id, title, pos, size, wxDEFAULT_FRAME_STYLE)
 {
-    // begin wxGlade: MyFrame1::MyFrame1
+    // begin wxGlade: MainFrame::MainFrame
     frame_1_menubar = new wxMenuBar();
     wxMenu* wxglade_tmp_menu_1 = new wxMenu();
     wxglade_tmp_menu_1->Append(wxID_EXIT, wxT("Quit"), wxEmptyString, wxITEM_NORMAL);
@@ -88,26 +88,26 @@ MyFrame1::MyFrame1(wxWindow* parent, int id, const wxString& title, const wxPoin
     wxButtonOK = new wxButton(this, BUTTON_GetQuote, wxT("Get Quote"));
     grid_1 = new wxGrid(this, wxID_ANY);
 
-    Connect(wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MyFrame1::OnQuit));
-    Connect(BUTTON_GetQuote,wxEVT_COMMAND_BUTTON_CLICKED , wxCommandEventHandler(MyFrame1::get_quote));
-    Connect(QUOTE_CALLBACK, wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(MyFrame1::onQuoteUpdate));
-    Connect(TICKER_INIT, wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(MyFrame1::OnCurlError));
+    Connect(wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::OnQuit));
+    Connect(BUTTON_GetQuote,wxEVT_COMMAND_BUTTON_CLICKED , wxCommandEventHandler(MainFrame::get_quote));
+    Connect(QUOTE_CALLBACK, wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(MainFrame::onQuoteUpdate));
+    Connect(TICKER_INIT, wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(MainFrame::OnCurlError));
     set_properties();
     do_layout();
     // end wxGlade
 
 };
 
-void MyFrame1::OnQuit(wxCommandEvent& WXUNUSED(event))
+void MainFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 {
 	Close(true);
 	delete std_quote;
-	delete mywxtick;
+
 }
 
-void MyFrame1::set_properties()
+void MainFrame::set_properties()
 {
-    // begin wxGlade: MyFrame1::set_properties
+    // begin wxGlade: MainFrame::set_properties
     SetTitle(wxT("Option Spreads"));
     grid_1->CreateGrid(15, 7);
     grid_1->SetColLabelValue(0, wxT("Strike"));
@@ -123,9 +123,9 @@ void MyFrame1::set_properties()
 }
 
 
-void MyFrame1::do_layout()
+void MainFrame::do_layout()
 {
-    // begin wxGlade: MyFrame1::do_layout
+    // begin wxGlade: MainFrame::do_layout
     wxBoxSizer* sizer_1 = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer* ConsKeySizer = new wxBoxSizer(wxHORIZONTAL);
     wxBoxSizer* sizer_4 = new wxBoxSizer(wxVERTICAL);
@@ -184,7 +184,7 @@ void MyFrame1::do_layout()
 
 }
 
-void MyFrame1::get_quote(wxCommandEvent& WXUNUSED(event))
+void MainFrame::get_quote(wxCommandEvent& WXUNUSED(event))
 {
 
 	//create a quote object for each inputted symbol
@@ -233,7 +233,7 @@ void MyFrame1::get_quote(wxCommandEvent& WXUNUSED(event))
 
 }
 
-void MyFrame1::onQuoteUpdate(wxCommandEvent& evt)	{
+void MainFrame::onQuoteUpdate(wxCommandEvent& evt)	{
 
 	XMLDocument xmlreply;
 	int parse_success;
@@ -355,7 +355,7 @@ void MyFrame1::onQuoteUpdate(wxCommandEvent& evt)	{
 
 }
 
-void MyFrame1::OnCurlError(wxCommandEvent& evt)	{
+void MainFrame::OnCurlError(wxCommandEvent& evt)	{
 
 	std::string message = std::string(evt.GetString().mb_str());
 	int call_num=evt.GetInt();
@@ -432,7 +432,7 @@ void MyFrame1::OnCurlError(wxCommandEvent& evt)	{
 
 }
 
-MyFrame1::~MyFrame1()	{
+MainFrame::~MainFrame()	{
 
 
     std::map<std::string, quote* > ::iterator iter;

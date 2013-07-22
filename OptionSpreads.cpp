@@ -20,16 +20,16 @@ enum
 
 };
 /*
-BEGIN_EVENT_TABLE(MyFrame1, wxFrame)
-    EVT_MENU(ID_Quit, MyFrame1::OnQuit)
-    EVT_MENU(ID_About, MyFrame1::OnAbout)
+BEGIN_EVENT_TABLE(MainFrame, wxFrame)
+    EVT_MENU(ID_Quit, MainFrame::OnQuit)
+    EVT_MENU(ID_About, MainFrame::OnAbout)
 END_EVENT_TABLE()
 */
 IMPLEMENT_APP(MyApp)
 
 bool MyApp::OnInit()
 {
-    MyFrame1 *frame = new MyFrame1(NULL,-1, wxT("Hello World"),
+    MainFrame *frame = new MainFrame(NULL,-1, wxT("Hello World"),
          wxPoint(50,50), wxSize(1700,1340) );
     frame->Show(TRUE);
     SetTopWindow(frame);

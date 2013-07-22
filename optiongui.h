@@ -37,22 +37,21 @@ const int ERR_CALLBACK = 200000;
 // end wxGlade
 
 
-class MyFrame1: public wxFrame {
+class MainFrame: public wxFrame {
 public:
-    // begin wxGlade: MyFrame1::ids
+    // begin wxGlade: MainFrame::ids
     // end wxGlade
 
-    MyFrame1(wxWindow* parent, int id, const wxString& title, const wxPoint& pos=wxDefaultPosition, const wxSize& size=wxDefaultSize, long style=wxDEFAULT_FRAME_STYLE);
-    ~MyFrame1();
+    MainFrame(wxWindow* parent, int id, const wxString& title, const wxPoint& pos=wxDefaultPosition, const wxSize& size=wxDefaultSize, long style=wxDEFAULT_FRAME_STYLE);
+    ~MainFrame();
     void OnQuit(wxCommandEvent & event);
     void onQuoteUpdate(wxCommandEvent & event);
     void OnCurlError(wxCommandEvent& event);
 
     quote* std_quote;
-    ticker* mywxtick;
     quote* wxquote;
 private:
-    // begin wxGlade: MyFrame1::methods
+    // begin wxGlade: MainFrame::methods
     void set_properties();
     void do_layout();
 
@@ -67,7 +66,7 @@ private:
     std::map <std::string, quote* > symbols;
     ticker* tickthread;
 protected:
-    // begin wxGlade: MyFrame1::attributes
+    // begin wxGlade: MainFrame::attributes
     wxMenuBar* frame_1_menubar;
     wxStaticText* label_1;
     wxStaticText* label_2;
