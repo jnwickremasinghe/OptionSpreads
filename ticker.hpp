@@ -15,12 +15,19 @@
 
 static void* that_quote;
 
+const int TICKER_CALLBACK =100000;
+const int Status_Callback = 100001;
+const int Strikes_Callback = 100004;
+const int QUOTE_CALLBACK = 100000;
+const int ERR_CALLBACK = 200000;
+
 class ticker : public wxThread {
 
 public:
     ticker(wxFrame* parent);
-	void init(quote* quote_ptr);
-	void start(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string symbol_list);
+//	void init(quote* quote_ptr);
+    void get_data(std::string url_base,std::string symbols);
+	void init(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string symbol_list);
 	~ticker(void);
 	float last(std::string);
 	void stop(void);
@@ -31,6 +38,15 @@ public:
 	// Our curl objects
 	CURL *curl;
 	CURLcode result;
+
+	enum TickerResponse	{
+		Unknown = 0 + TICKER_CALLBACK,
+		Status = 100001,
+		Quote = 2 + TICKER_CALLBACK,
+		Stream = 3 + TICKER_CALLBACK,
+		Strikes = 4 + TICKER_CALLBACK,
+		Expirations = 5 + TICKER_CALLBACK,
+	};
 
 
 private:

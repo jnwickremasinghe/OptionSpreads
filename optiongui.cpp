@@ -9,6 +9,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <iomanip>
 
 
 
@@ -76,7 +77,7 @@ MainFrame::MainFrame(wxWindow* parent, int id, const wxString& title, const wxPo
     label_4a = new wxStaticText(this, wxID_ANY, wxT("URL"));
     txtctrlURL = new wxTextCtrl(this, wxID_ANY, URL);
 
-    label_4b = new wxStaticText(this, wxID_ANY, wxT("Options"));
+    label_4b = new wxStaticText(this, wxID_ANY, wxT("Option: <Ticker>YYMMDD{C|P}"));
     txtctrlOption_Symbols = new wxTextCtrl(this, wxID_ANY, option_list);
 
     label_5 = new wxStaticText(this, wxID_ANY, wxT("Symbols"));
@@ -92,6 +93,8 @@ MainFrame::MainFrame(wxWindow* parent, int id, const wxString& title, const wxPo
     Connect(BUTTON_GetQuote,wxEVT_COMMAND_BUTTON_CLICKED , wxCommandEventHandler(MainFrame::get_quote));
     Connect(QUOTE_CALLBACK, wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(MainFrame::onQuoteUpdate));
     Connect(TICKER_INIT, wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(MainFrame::OnCurlError));
+    Connect(Strikes_Callback, wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(MainFrame::GenerateOptionSymbols));
+    Connect(100001, wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(MainFrame::LogStatus));
     set_properties();
     do_layout();
     // end wxGlade
@@ -109,7 +112,7 @@ void MainFrame::set_properties()
 {
     // begin wxGlade: MainFrame::set_properties
     SetTitle(wxT("Option Spreads"));
-    grid_1->CreateGrid(15, 7);
+    grid_1->CreateGrid(45, 7);
     grid_1->SetColLabelValue(0, wxT("Strike"));
     grid_1->SetColLabelValue(1, wxT("Symbol"));
     grid_1->SetColLabelValue(2, wxT("Bid"));
@@ -118,7 +121,7 @@ void MainFrame::set_properties()
     grid_1->SetColLabelValue(5, wxT("% Chg"));
     grid_1->SetColLabelValue(6, wxT("Date time"));
     grid_1->SetColSize(6,120);
-    grid_1->SetColSize(1,120);
+    grid_1->SetColSize(1,150);
     // end wxGlade
 }
 
@@ -174,21 +177,143 @@ void MainFrame::do_layout()
 
 
 //    sizer_1->Add(ConsSecretSizer, 1, wxEXPAND, 10);
-    sizer_1->Add(sizer_4, 1, wxALL|wxEXPAND, 10);
-    sizer_1->Add(grid_1, 1, wxALL|wxEXPAND, 0);
+    sizer_1->Add(sizer_4, 0, wxALL|wxEXPAND, 10);
+    sizer_1->Add(grid_1, 1, wxRIGHT|wxEXPAND, 0);
     SetSizer(sizer_1);
     sizer_1->Fit(this);
+    this->SetSize(800,750);//width ,hieght
     Layout();
     // end wxGlade
 
 
 }
 
+void MainFrame::Init(void)	{
+
+	std::string URLBase; // = "https://api.tradeking.com/v1/market/ext/quotes.xml?symbols=";
+	URLBase=(txtctrlURL->GetValue()).mb_str();
+
+
+	//get Consumer Key as ASCII const char*
+	wxString ctrl_value=txtctrlConsumerKey->GetValue();
+	std::string ConsumerKey;
+	ConsumerKey = ctrl_value.mb_str();
+
+
+	//get Consumer Secret as ASCII const char*
+	ctrl_value=txtctrlConsumerSecret->GetValue();
+	std::string ConsumerSecret;
+	ConsumerSecret = ctrl_value.mb_str();
+
+	//get Token Key as ASCII const char*
+	ctrl_value=txtctrlTokenKey->GetValue();
+	std::string TokenKey;
+	TokenKey = ctrl_value.mb_str();
+
+	//get Token Secret as ASCII const char*
+	ctrl_value=txtctrlTokenSecret->GetValue();
+	std::string TokenSecret;
+	TokenSecret = ctrl_value.mb_str();
+
+	//get URI as an ASCII const char*
+	ctrl_value=txtctrlSymbols->GetValue();
+
+	std::string symbol_list;
+	symbol_list=ctrl_value.mb_str();
+
+	std::string db_connection;
+	ctrl_value=txtctrlDBPath->GetValue();
+	db_connection=ctrl_value.mb_str();
+
+
+	tickthread = new ticker(this);
+	tickthread->init(ConsumerKey, ConsumerSecret, TokenKey, TokenSecret, URLBase, symbol_list);
+
+}
+
+void MainFrame::LogStatus(wxCommandEvent& evt)	{
+
+	int parse_success;
+	XMLDocument xmlreply;
+	XMLHandle xml_handle(xmlreply);
+	XMLElement* xmlvalue;
+
+	parse_success=xmlreply.Parse(evt.GetString().mb_str(wxConvUTF8));
+
+	xmlvalue= xml_handle.FirstChildElement("status").ToElement();
+	if (xmlvalue!=0)	{
+		string status=xmlvalue->GetText();
+		cout << "Status: " << status << endl;
+	}
+
+}
+
+
 void MainFrame::get_quote(wxCommandEvent& WXUNUSED(event))
+
 {
 
+	//init ticker object
+	Init();
+	GetOptionStrikes();
+
+
+}
+
+void MainFrame::GenerateOptionSymbols(wxCommandEvent& evt)	{
+
+	//get Option Symbol as ASCII const char*
+	wxString ctrl_value=txtctrlOption_Symbols->GetValue();
+	std::string OptionBase;
+	OptionBase = ctrl_value.mb_str();
+
+	std::string testy;
+
+	XMLDocument xmlreply;
+	int parse_success;
+	parse_success=xmlreply.Parse(evt.GetString().mb_str(wxConvUTF8));
+	XMLHandle xml_handle(xmlreply);
+	XMLElement* xmlvalue;
+
+	XMLElement* xml_eml;
+	XMLElement* xml_strike;
+	xml_eml = xml_handle.FirstChildElement().ToElement();
+	std::string ElementName = xml_eml->Name();
+
+	xml_strike = xml_handle.FirstChildElement().FirstChildElement().FirstChildElement().ToElement();
+	XMLNode* this_node;
+	std::string OptionSymbol;
+	do {
+		this_node  =xml_strike->NextSibling();
+		if (this_node) {
+			std::stringstream symbol_padder;
+			std::stringstream ConvertToFloat;
+			xml_strike=this_node->ToElement();
+			float strike;
+			istringstream(xml_strike->GetText())>>strike;
+			strike=strike*100;
+			symbol_padder << setfill('0') << setw(8) <<  strike;
+			symbol_padder >>testy;
+//			cout << OptionBase << testy << ",";
+			OptionSymbol.append(",");
+			OptionSymbol.append(OptionBase);
+			OptionSymbol.append(testy);
+			testy.clear();
+//			cout << xml_strike->GetText() << endl;
+		}
+
+
+	} while (this_node);
+	wxString wxOptions(OptionSymbol.c_str(), wxConvUTF8);
+	txtctrlSymbols->AppendText(wxOptions);
+
+
+
+	cout << OptionSymbol << endl;
+
+
 	//create a quote object for each inputted symbol
-	wxString ctrl_value;
+
 	ctrl_value=txtctrlSymbols->GetValue();
 	std::string symbol_temp;
 	symbol_temp=ctrl_value.mb_str();
@@ -233,6 +358,16 @@ void MainFrame::get_quote(wxCommandEvent& WXUNUSED(event))
 
 }
 
+void MainFrame::GetOptionStrikes(void)	{
+
+	tickthread->get_data("https://api.tradeking.com/v1/market/options/strikes.xml?symbol=","FB");
+	//tickthread->get_data("https://api.tradeking.com/v1/market/options/expirations.xml?symbol=","FB");
+
+
+
+}
+
+
 void MainFrame::onQuoteUpdate(wxCommandEvent& evt)	{
 
 	XMLDocument xmlreply;
@@ -244,6 +379,7 @@ void MainFrame::onQuoteUpdate(wxCommandEvent& evt)	{
 	XMLHandle xml_handle(xmlreply);
 	XMLElement* xml_eml;
 	xml_eml = xml_handle.FirstChildElement().ToElement();
+	//xml_handle.FirstChildElement().FirstChildElement().ToElement();
 	std::string ElementName = xml_eml->Name();
 
 	float last;
@@ -350,7 +486,10 @@ void MainFrame::onQuoteUpdate(wxCommandEvent& evt)	{
 		} else {
 			std::cerr <<"Unknown symbol in trade: " << symbol << endl;
 		}
+	} else {
+		cout << evt.GetString().mb_str(wxConvUTF8) <<endl;
 	}
+
 
 
 }
@@ -363,46 +502,9 @@ void MainFrame::OnCurlError(wxCommandEvent& evt)	{
 	if (call_num==TICKER_INIT && message=="start")	{
 		//initial call to start thread
 
-		std::string URLBase; // = "https://api.tradeking.com/v1/market/ext/quotes.xml?symbols=";
-		URLBase=(txtctrlURL->GetValue()).mb_str();
-
-
-		//get Consumer Key as ASCII const char*
-		wxString ctrl_value=txtctrlConsumerKey->GetValue();
-		std::string ConsumerKey;
-		ConsumerKey = ctrl_value.mb_str();
-
-
-		//get Consumer Secret as ASCII const char*
-		ctrl_value=txtctrlConsumerSecret->GetValue();
-		std::string ConsumerSecret;
-		ConsumerSecret = ctrl_value.mb_str();
-
-		//get Token Key as ASCII const char*
-		ctrl_value=txtctrlTokenKey->GetValue();
-		std::string TokenKey;
-		TokenKey = ctrl_value.mb_str();
-
-		//get Token Secret as ASCII const char*
-		ctrl_value=txtctrlTokenSecret->GetValue();
-		std::string TokenSecret;
-		TokenSecret = ctrl_value.mb_str();
-
-		//get URI as an ASCII const char*
-		ctrl_value=txtctrlSymbols->GetValue();
-
-		std::string symbol_list;
-		symbol_list=ctrl_value.mb_str();
-
-		std::string db_connection;
-		ctrl_value=txtctrlDBPath->GetValue();
-		db_connection=ctrl_value.mb_str();
 
 
 
-
-		tickthread = new ticker(this);
-		tickthread->start(ConsumerKey, ConsumerSecret, TokenKey, TokenSecret, URLBase, symbol_list);
 
 		wxThreadError err = tickthread->Create();
 

@@ -6,8 +6,8 @@
 #include "tinyxml2.h"
 #include "ticker.hpp"
 
-const int QUOTE_CALLBACK = 100000;
-const int ERR_CALLBACK = 200000;
+
+
 
 using namespace tinyxml2;
 using namespace std;
@@ -22,14 +22,14 @@ ticker::ticker(wxFrame* parent)	{
 	cout <<"ticker created" << endl;
 }
 
-void ticker::init(quote* quote_ptr)	{
+//void ticker::init(quote* quote_ptr)	{
+//se
+//	std::string symbol;
+//
+//};
 
-	std::string symbol;
 
-};
-
-
-void ticker::start(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string symbol_list)	{
+void ticker::init(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string symbol_list)	{
 
 	cons_key=c_key;
 	cons_secret=c_secret;
@@ -40,6 +40,38 @@ void ticker::start(std::string c_key, std::string c_secret, std::string t_key, s
 
 }
 
+void ticker::get_data(std::string url_base,std::string symbols) {
+	//function to make synchronous call to curl
+
+
+	char *req_url = NULL;
+	std::string full_url=url_base+symbols;
+
+	req_url = oauth_sign_url2(full_url.c_str(), NULL, OA_HMAC, NULL, cons_key.c_str(), cons_secret.c_str(), token_key.c_str(), token_secret.c_str());
+
+	std::string url_string(req_url);
+
+	curl = curl_easy_init();
+	if (curl)
+	{
+	  curl_easy_setopt(curl, CURLOPT_URL, url_string.c_str());
+	  // Now set up all of the curl options
+	  curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
+	  curl_easy_setopt(curl, CURLOPT_HEADER, 0);
+	  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+	  curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
+	  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &ticker::writer);
+	  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
+
+	}
+	buffer.clear();
+
+	result = curl_easy_perform(curl);
+	if (result != CURLE_OK) {
+		cout << buffer << endl;
+	}
+
+}
 
 
 // This is the writer call back function used by curl
@@ -65,31 +97,45 @@ int ticker::writer(char *data, size_t size, size_t nmemb,
 		xml_eml = xml_handle.FirstChildElement().ToElement();
 		std::string ElementName = xml_eml->Name();
 
-		if (ElementName=="status")	{
-			cout << *buffer << endl;
-			buffer->clear();
-		}
 		wxFrame* myself = (wxFrame*) that_quote;
-		//cout << *buffer << endl;
+		wxCommandEvent event( wxEVT_COMMAND_TEXT_UPDATED);
+
+
+		if (ElementName=="status")	{
+			event.SetId(Status);
+			event.SetInt(Status);
+		} else
 
 		if (ElementName=="quote" || ElementName=="trade" )	{
-			wxString mystring(buffer->c_str(),wxConvUTF8);
+			event.SetId(QUOTE_CALLBACK);
+			event.SetInt(Stream);
 
-			wxCommandEvent event( wxEVT_COMMAND_TEXT_UPDATED, QUOTE_CALLBACK);
-			event.SetString(mystring);  // pass back the XML snippet
-			myself->GetEventHandler()->AddPendingEvent( event );
-			buffer->clear();
+		} else
 
+		if (ElementName=="response"  )	{
+			xml_eml = xml_handle.FirstChildElement().FirstChildElement().ToElement();
+			std::string SecondElementName = xml_eml->Name();
+//			cout << SecondElementName << endl;
+			if (SecondElementName=="prices")	{
+				event.SetId(Strikes_Callback);
 
+				}
+			else {
+
+				event.SetId(QUOTE_CALLBACK);
+				event.SetInt(Stream);
+			}
 		}
+
 		else {
-			cout << "Unknown Response: " << *buffer << endl;
+			cout << ElementName << endl;
+			event.SetId(QUOTE_CALLBACK);
+			event.SetInt(Unknown);
 		}
 
-
-	}
-	else {
-		//cout <<"Incomplete payload..." << endl;
+		wxString mystring(buffer->c_str(),wxConvUTF8);
+		event.SetString(mystring);  // pass back the XML snippet
+		myself->GetEventHandler()->AddPendingEvent( event );
 	}
 
 
@@ -109,6 +155,8 @@ wxThread::ExitCode ticker::Entry()	{
 	req_url = oauth_sign_url2(full_url.c_str(), NULL, OA_HMAC, NULL, cons_key.c_str(), cons_secret.c_str(), token_key.c_str(), token_secret.c_str());
 
 	std::string url_string(req_url);
+
+	cout << url_string << endl;
 
 	for (int retry=0;retry<10;retry++)	{
 		curl = curl_easy_init();

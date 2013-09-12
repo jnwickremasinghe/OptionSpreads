@@ -29,8 +29,6 @@
 
 const std::string config_file="./keys.txt";
 const int TICKER_INIT = 000000;
-const int QUOTE_CALLBACK = 100000;
-const int ERR_CALLBACK = 200000;
 
 
 // begin wxGlade: ::extracode
@@ -44,9 +42,14 @@ public:
 
     MainFrame(wxWindow* parent, int id, const wxString& title, const wxPoint& pos=wxDefaultPosition, const wxSize& size=wxDefaultSize, long style=wxDEFAULT_FRAME_STYLE);
     ~MainFrame();
+    void Init(void);
+    void GetOptionStrikes(void);
+
+    void GenerateOptionSymbols(wxCommandEvent & event);
     void OnQuit(wxCommandEvent & event);
     void onQuoteUpdate(wxCommandEvent & event);
     void OnCurlError(wxCommandEvent& event);
+    void LogStatus(wxCommandEvent& event);
 
     quote* std_quote;
     quote* wxquote;
