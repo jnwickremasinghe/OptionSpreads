@@ -267,50 +267,52 @@ void MainFrame::GenerateOptionSymbols(wxCommandEvent& evt)	{
 	std::string OptionBase;
 	OptionBase = ctrl_value.mb_str();
 
-	std::string testy;
+	if (!(OptionBase.empty()))	{
 
-	XMLDocument xmlreply;
-	int parse_success;
-	parse_success=xmlreply.Parse(evt.GetString().mb_str(wxConvUTF8));
-	XMLHandle xml_handle(xmlreply);
-	XMLElement* xmlvalue;
+		std::string testy;
 
-	XMLElement* xml_eml;
-	XMLElement* xml_strike;
-	xml_eml = xml_handle.FirstChildElement().ToElement();
-	std::string ElementName = xml_eml->Name();
+		XMLDocument xmlreply;
+		int parse_success;
+		parse_success=xmlreply.Parse(evt.GetString().mb_str(wxConvUTF8));
+		XMLHandle xml_handle(xmlreply);
+		XMLElement* xmlvalue;
 
-	xml_strike = xml_handle.FirstChildElement().FirstChildElement().FirstChildElement().ToElement();
-	XMLNode* this_node;
-	std::string OptionSymbol;
-	do {
-		this_node  =xml_strike->NextSibling();
-		if (this_node) {
-			std::stringstream symbol_padder;
-			std::stringstream ConvertToFloat;
-			xml_strike=this_node->ToElement();
-			float strike;
-			istringstream(xml_strike->GetText())>>strike;
-			strike=strike*100;
-			symbol_padder << setfill('0') << setw(8) <<  strike;
-			symbol_padder >>testy;
-//			cout << OptionBase << testy << ",";
-			OptionSymbol.append(",");
-			OptionSymbol.append(OptionBase);
-			OptionSymbol.append(testy);
-			testy.clear();
-//			cout << xml_strike->GetText() << endl;
-		}
+		XMLElement* xml_eml;
+		XMLElement* xml_strike;
+		xml_eml = xml_handle.FirstChildElement().ToElement();
+		std::string ElementName = xml_eml->Name();
 
-
-	} while (this_node);
-	wxString wxOptions(OptionSymbol.c_str(), wxConvUTF8);
-	txtctrlSymbols->AppendText(wxOptions);
+		xml_strike = xml_handle.FirstChildElement().FirstChildElement().FirstChildElement().ToElement();
+		XMLNode* this_node;
+		std::string OptionSymbol;
+		do {
+			this_node  =xml_strike->NextSibling();
+			if (this_node) {
+				std::stringstream symbol_padder;
+				std::stringstream ConvertToFloat;
+				xml_strike=this_node->ToElement();
+				float strike;
+				istringstream(xml_strike->GetText())>>strike;
+				strike=strike*100;
+				symbol_padder << setfill('0') << setw(8) <<  strike;
+				symbol_padder >>testy;
+	//			cout << OptionBase << testy << ",";
+				OptionSymbol.append(",");
+				OptionSymbol.append(OptionBase);
+				OptionSymbol.append(testy);
+				testy.clear();
+	//			cout << xml_strike->GetText() << endl;
+			}
 
 
+		} while (this_node);
+		wxString wxOptions(OptionSymbol.c_str(), wxConvUTF8);
+		txtctrlSymbols->AppendText(wxOptions);
 
-	cout << OptionSymbol << endl;
 
+
+		cout << OptionSymbol << endl;
+	}
 
 	//create a quote object for each inputted symbol
 
@@ -439,7 +441,8 @@ void MainFrame::onQuoteUpdate(wxCommandEvent& evt)	{
 		} else	{
 			std::cerr <<"Unknown symbol in quote: " << symbol << endl;
 		}
-	}
+	} else
+
 
 
 
@@ -487,7 +490,7 @@ void MainFrame::onQuoteUpdate(wxCommandEvent& evt)	{
 			std::cerr <<"Unknown symbol in trade: " << symbol << endl;
 		}
 	} else {
-		cout << evt.GetString().mb_str(wxConvUTF8) <<endl;
+		//cout << evt.GetString().mb_str(wxConvUTF8) <<endl;
 	}
 
 

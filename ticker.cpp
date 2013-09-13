@@ -136,6 +136,7 @@ int ticker::writer(char *data, size_t size, size_t nmemb,
 		wxString mystring(buffer->c_str(),wxConvUTF8);
 		event.SetString(mystring);  // pass back the XML snippet
 		myself->GetEventHandler()->AddPendingEvent( event );
+		buffer->clear();
 	}
 
 

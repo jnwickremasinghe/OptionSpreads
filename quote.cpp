@@ -11,13 +11,15 @@ quote::quote(std::string this_symbol, int order_num, std::string db_connection )
 
 	std::cout << _symbol << " created, order: " << _order_num <<std::endl;
 
-	int rc = sqlite3_open(db_connection.c_str(), &db);
-	if (rc)	{
-		std::cerr << "Can't open database: " << sqlite3_errmsg(db) << std::endl;
-		sqlite3_close(db);
+	if (!db_connection.empty())	{
 
+		int rc = sqlite3_open(db_connection.c_str(), &db);
+		if (rc)	{
+			std::cerr << "Can't open database: " << sqlite3_errmsg(db) << std::endl;
+			sqlite3_close(db);
+
+		}
 	}
-
 }
 
 quote::~quote()	{
