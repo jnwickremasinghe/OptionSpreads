@@ -19,6 +19,8 @@ quote::quote(std::string this_symbol, int order_num, std::string db_connection )
 			sqlite3_close(db);
 
 		}
+	} else {
+		db=0; //set db pointer to null
 	}
 }
 

@@ -112,7 +112,7 @@ void MainFrame::set_properties()
 {
     // begin wxGlade: MainFrame::set_properties
     SetTitle(wxT("Option Spreads"));
-    grid_1->CreateGrid(45, 7);
+    grid_1->CreateGrid(75, 7);
     grid_1->SetColLabelValue(0, wxT("Strike"));
     grid_1->SetColLabelValue(1, wxT("Symbol"));
     grid_1->SetColLabelValue(2, wxT("Bid"));
@@ -293,7 +293,7 @@ void MainFrame::GenerateOptionSymbols(wxCommandEvent& evt)	{
 				xml_strike=this_node->ToElement();
 				float strike;
 				istringstream(xml_strike->GetText())>>strike;
-				strike=strike*100;
+				strike=strike*1000;
 				symbol_padder << setfill('0') << setw(8) <<  strike;
 				symbol_padder >>testy;
 	//			cout << OptionBase << testy << ",";
