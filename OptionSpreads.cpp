@@ -1,9 +1,3 @@
-/*
- * hworld.cpp
- * Hello world sample by Robert Roebling
- * Adapted for unicode by Max Berger
- */
-
 #include "wx/wx.h"
 #include "optiongui.h"
 #include <oauth.h>
@@ -19,17 +13,12 @@ enum
     ID_About,
 
 };
-/*
-BEGIN_EVENT_TABLE(MainFrame, wxFrame)
-    EVT_MENU(ID_Quit, MainFrame::OnQuit)
-    EVT_MENU(ID_About, MainFrame::OnAbout)
-END_EVENT_TABLE()
-*/
+
 IMPLEMENT_APP(MyApp)
 
 bool MyApp::OnInit()
 {
-    MainFrame *frame = new MainFrame(NULL,-1, wxT("Hello World"),
+    MainFrame *frame = new MainFrame(NULL,-1, wxT("Option Spreads"),
          wxPoint(50,50), wxSize(900,1140) );
     frame->Show(TRUE);
     SetTopWindow(frame);

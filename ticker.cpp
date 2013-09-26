@@ -22,11 +22,6 @@ ticker::ticker(wxFrame* parent)	{
 	cout <<"ticker created" << endl;
 }
 
-//void ticker::init(quote* quote_ptr)	{
-//se
-//	std::string symbol;
-//
-//};
 
 
 void ticker::init(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string symbol_list)	{
@@ -40,8 +35,8 @@ void ticker::init(std::string c_key, std::string c_secret, std::string t_key, st
 
 }
 
-void ticker::get_data(std::string url_base,std::string symbols) {
-	//function to make synchronous call to curl
+void ticker::GetData(std::string url_base,std::string symbols) {
+	//function to make non-streaming call to curl
 
 
 	char *req_url = NULL;

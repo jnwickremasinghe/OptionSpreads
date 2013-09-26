@@ -21,11 +21,11 @@ MainFrame::MainFrame(wxWindow* parent, int id, const wxString& title, const wxPo
     wxFrame(parent, id, title, pos, size, wxDEFAULT_FRAME_STYLE)
 {
     // begin wxGlade: MainFrame::MainFrame
-    frame_1_menubar = new wxMenuBar();
+    mainframe_menubar = new wxMenuBar();
     wxMenu* wxglade_tmp_menu_1 = new wxMenu();
     wxglade_tmp_menu_1->Append(wxID_EXIT, wxT("Quit"), wxEmptyString, wxITEM_NORMAL);
-    frame_1_menubar->Append(wxglade_tmp_menu_1, wxT("File"));
-    SetMenuBar(frame_1_menubar);
+    mainframe_menubar->Append(wxglade_tmp_menu_1, wxT("File"));
+    SetMenuBar(mainframe_menubar);
 
     ifstream parameters;
     parameters.open(config_file.c_str());
@@ -90,13 +90,13 @@ MainFrame::MainFrame(wxWindow* parent, int id, const wxString& title, const wxPo
     grid_1 = new wxGrid(this, wxID_ANY);
 
     Connect(wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::OnQuit));
-    Connect(BUTTON_GetQuote,wxEVT_COMMAND_BUTTON_CLICKED , wxCommandEventHandler(MainFrame::get_quote));
+    Connect(BUTTON_GetQuote,wxEVT_COMMAND_BUTTON_CLICKED , wxCommandEventHandler(MainFrame::GetQuote));
     Connect(QUOTE_CALLBACK, wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(MainFrame::onQuoteUpdate));
     Connect(TICKER_INIT, wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(MainFrame::OnCurlError));
     Connect(Strikes_Callback, wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(MainFrame::GenerateOptionSymbols));
     Connect(100001, wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(MainFrame::LogStatus));
-    set_properties();
-    do_layout();
+    SetProperties();
+    DoLayout();
     // end wxGlade
 
 };
@@ -104,11 +104,10 @@ MainFrame::MainFrame(wxWindow* parent, int id, const wxString& title, const wxPo
 void MainFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 {
 	Close(true);
-	delete std_quote;
 
 }
 
-void MainFrame::set_properties()
+void MainFrame::SetProperties()
 {
     // begin wxGlade: MainFrame::set_properties
     SetTitle(wxT("Option Spreads"));
@@ -126,7 +125,7 @@ void MainFrame::set_properties()
 }
 
 
-void MainFrame::do_layout()
+void MainFrame::DoLayout()
 {
     // begin wxGlade: MainFrame::do_layout
     wxBoxSizer* sizer_1 = new wxBoxSizer(wxVERTICAL);
@@ -249,7 +248,7 @@ void MainFrame::LogStatus(wxCommandEvent& evt)	{
 }
 
 
-void MainFrame::get_quote(wxCommandEvent& WXUNUSED(event))
+void MainFrame::GetQuote(wxCommandEvent& WXUNUSED(event))
 
 {
 
@@ -362,8 +361,10 @@ void MainFrame::GenerateOptionSymbols(wxCommandEvent& evt)	{
 
 void MainFrame::GetOptionStrikes(void)	{
 
-	tickthread->get_data("https://api.tradeking.com/v1/market/options/strikes.xml?symbol=","FB");
-	//tickthread->get_data("https://api.tradeking.com/v1/market/options/expirations.xml?symbol=","FB");
+	//tickthread->GetData("https://api.tradeking.com/v1/market/ext/quotes.xml?symbol=","FB");
+	tickthread->GetData("https://api.tradeking.com/v1/market/options/strikes.xml?symbol=","FB");
+
+
 
 
 
@@ -490,7 +491,7 @@ void MainFrame::onQuoteUpdate(wxCommandEvent& evt)	{
 			std::cerr <<"Unknown symbol in trade: " << symbol << endl;
 		}
 	} else {
-		//cout << evt.GetString().mb_str(wxConvUTF8) <<endl;
+		cout << evt.GetString().mb_str(wxConvUTF8) <<endl;
 	}
 
 

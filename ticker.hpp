@@ -26,7 +26,7 @@ class ticker : public wxThread {
 public:
     ticker(wxFrame* parent);
 //	void init(quote* quote_ptr);
-    void get_data(std::string url_base,std::string symbols);
+    void GetData(std::string url_base,std::string symbols);
 	void init(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string symbol_list);
 	~ticker(void);
 	float last(std::string);

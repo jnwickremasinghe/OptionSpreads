@@ -8,7 +8,6 @@
 #include "ticker.hpp"
 #include "quote.hpp"
 #include <sqlite3.h>
-//#include <boost/shared_ptr.hpp>
 // end wxGlade
 
 #ifdef wxUSE_UNICODE
@@ -51,14 +50,13 @@ public:
     void OnCurlError(wxCommandEvent& event);
     void LogStatus(wxCommandEvent& event);
 
-    quote* std_quote;
     quote* wxquote;
 private:
     // begin wxGlade: MainFrame::methods
-    void set_properties();
-    void do_layout();
+    void SetProperties();
+    void DoLayout();
 
-    void get_quote(wxCommandEvent& WXUNUSED(event));
+    void GetQuote(wxCommandEvent& WXUNUSED(event));
     // end wxGlade
     enum
     {
@@ -70,7 +68,7 @@ private:
     ticker* tickthread;
 protected:
     // begin wxGlade: MainFrame::attributes
-    wxMenuBar* frame_1_menubar;
+    wxMenuBar* mainframe_menubar;
     wxStaticText* label_1;
     wxStaticText* label_2;
     wxStaticText* label_3;
