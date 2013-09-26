@@ -13,6 +13,7 @@ using namespace tinyxml2;
 using namespace std;
 
 static std::string buffer;
+static std::string buffer2;
 static std::string symbol;
 static std::string timestamp;
 
@@ -23,16 +24,18 @@ ticker::ticker(wxFrame* parent)	{
 }
 
 
-
-void ticker::init(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri, std::string symbol_list)	{
+void ticker::init(std::string c_key, std::string c_secret, std::string t_key, std::string t_secret, std::string uri)	{
 
 	cons_key=c_key;
 	cons_secret=c_secret;
 	token_key=t_key;
 	token_secret=t_secret;
 	url_base=uri;
-	symbols=symbol_list;
+}
 
+void ticker::SetSymbols(std::string symbol_list)	{
+	symbols=symbol_list;
+	cout << symbols << endl;
 }
 
 void ticker::GetData(std::string url_base,std::string symbols) {
@@ -45,6 +48,7 @@ void ticker::GetData(std::string url_base,std::string symbols) {
 	req_url = oauth_sign_url2(full_url.c_str(), NULL, OA_HMAC, NULL, cons_key.c_str(), cons_secret.c_str(), token_key.c_str(), token_secret.c_str());
 
 	std::string url_string(req_url);
+	cout << url_string << endl;
 
 	curl = curl_easy_init();
 	if (curl)
@@ -56,10 +60,10 @@ void ticker::GetData(std::string url_base,std::string symbols) {
 	  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
 	  curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
 	  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &ticker::writer);
-	  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
+	  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer2);
 
 	}
-	buffer.clear();
+//	buffer.clear();
 
 	result = curl_easy_perform(curl);
 	if (result != CURLE_OK) {
@@ -167,7 +171,7 @@ wxThread::ExitCode ticker::Entry()	{
 		  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &ticker::writer);
 		  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
 		}
-		buffer.clear();
+//		buffer.clear();
 
 
 		result = curl_easy_perform(curl);
@@ -178,13 +182,13 @@ wxThread::ExitCode ticker::Entry()	{
 			event.SetString(errorstring);  // pass back the error message
 			event.SetInt(result); //pass back error message
 			wxFrame* myself = (wxFrame*) that_quote;
-			myself->GetEventHandler()->AddPendingEvent( event );
 			cout << "Error: [" << result << "] - " << errorBuffer << endl;
 			cout <<"Cleaning up curl" << endl;
 			curl_easy_cleanup(curl);
 			cout << "Waiting 10 seconds before retrying" << endl;
 			cout << "Retry #" << retry << endl;
 			sleep(10); //wait for 10 seconds - not portable!!
+			myself->GetEventHandler()->AddPendingEvent( event );
 		}
 	}
 

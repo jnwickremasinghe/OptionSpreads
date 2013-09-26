@@ -226,7 +226,7 @@ void MainFrame::Init(void)	{
 
 
 	tickthread = new ticker(this);
-	tickthread->init(ConsumerKey, ConsumerSecret, TokenKey, TokenSecret, URLBase, symbol_list);
+	tickthread->init(ConsumerKey, ConsumerSecret, TokenKey, TokenSecret, URLBase);
 
 }
 
@@ -318,6 +318,8 @@ void MainFrame::GenerateOptionSymbols(wxCommandEvent& evt)	{
 	ctrl_value=txtctrlSymbols->GetValue();
 	std::string symbol_temp;
 	symbol_temp=ctrl_value.mb_str();
+	std::string symbols_for_url = symbol_temp;
+	cout << symbol_temp << endl;
 	std::string symbol;
 	size_t comma_position;
 	//comma_position=symbol_list.find(',',comma_position);
@@ -351,8 +353,11 @@ void MainFrame::GenerateOptionSymbols(wxCommandEvent& evt)	{
 
 	} while (comma_position!=string::npos);
 
+	cout << "Symbols for URL" << symbols_for_url << endl;
+	tickthread->SetSymbols(symbols_for_url);
 
 	wxCommandEvent event(wxEVT_COMMAND_TEXT_UPDATED, TICKER_INIT);
+
 	event.SetString(wxT("start"));
 	event.SetInt(TICKER_INIT);
 	this->GetEventHandler()->AddPendingEvent(event);
@@ -361,11 +366,8 @@ void MainFrame::GenerateOptionSymbols(wxCommandEvent& evt)	{
 
 void MainFrame::GetOptionStrikes(void)	{
 
-	//tickthread->GetData("https://api.tradeking.com/v1/market/ext/quotes.xml?symbol=","FB");
+
 	tickthread->GetData("https://api.tradeking.com/v1/market/options/strikes.xml?symbol=","FB");
-
-
-
 
 
 }
