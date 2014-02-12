@@ -99,6 +99,10 @@ MainFrame::MainFrame(wxWindow* parent, int id, const wxString& title, const wxPo
     DoLayout();
     // end wxGlade
 
+    if (id==1)	{
+        Init();
+        GetOptionStrikes();
+    }
 };
 
 void MainFrame::OnQuit(wxCommandEvent& WXUNUSED(event))

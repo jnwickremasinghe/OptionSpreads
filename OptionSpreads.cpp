@@ -18,7 +18,11 @@ IMPLEMENT_APP(MyApp)
 
 bool MyApp::OnInit()
 {
-    MainFrame *frame = new MainFrame(NULL,-1, wxT("Option Spreads"),
+	int id=-1;
+	if (wxApp::argc==2)	{
+		id=1;
+	}
+    MainFrame *frame = new MainFrame(NULL,id, wxT("Option Spreads"),
          wxPoint(50,50), wxSize(900,1140) );
     frame->Show(TRUE);
     SetTopWindow(frame);
